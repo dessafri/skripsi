@@ -1,0 +1,56 @@
+@import './fonts';
+@import './navbar';
+@import './typo';
+@import './buttons';
+.main {
+  width: 100%;
+  margin-top: 30px;
+  .jumbo {
+    h1 {
+      font-size: 28px;
+      span {
+        display: inline-block;
+        color: $kuning;
+      }
+    }
+  }
+  .formLogin {
+    width: 100%;
+    height: 500px;
+    border-radius: 60px;
+    border: 1px solid black;
+    padding: 30px;
+    h2 {
+      font-size: 22px;
+      font-weight: map-get($font-weights, bold);
+      margin-bottom: 48px;
+    }
+    input {
+      border-radius: 27px;
+    }
+    .inputPassword {
+      margin-top: 48px;
+    }
+    .btn {
+      @extend .btn-main;
+      font-size: 16;
+      width: 168px;
+      font-weight: map-get($font-weights, reguler);
+      border-radius: 12px;
+      margin-top: 70px;
+    }
+    span {
+      display: inline-block;
+      color: rgb(77, 75, 75);
+      opacity: 0.8;
+      font-size: 14px;
+      margin-top: 10px;
+      a {
+        text-decoration: none;
+        font-size: 16px;
+        color: $kuning;
+        font-weight: map-get($font-weights, bold);
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+@import './login';
+@import './register';
+
+html {
+  margin: 0;
+  padding: 0;
+}
+
+#wrapper {
+  display: flex;
+}

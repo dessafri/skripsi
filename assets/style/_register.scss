@@ -1,0 +1,53 @@
+@import './fonts';
+@import './navbar';
+@import './typo';
+@import './buttons';
+.main {
+  width: 100%;
+  margin-top: 30px;
+  margin-bottom: 50px;
+  .jumbo {
+    h1 {
+      font-size: 28px;
+      span {
+        display: inline-block;
+        color: $kuning;
+      }
+    }
+  }
+  .formRegister {
+    width: 100%;
+    border-radius: 60px;
+    border: 1px solid black;
+    padding: 30px;
+    h2 {
+      font-size: 22px;
+      font-weight: map-get($font-weights, bold);
+      margin-bottom: 48px;
+    }
+    input {
+      border-radius: 12px;
+    }
+
+    .btn {
+      @extend .btn-main;
+      font-size: 16;
+      width: 168px;
+      font-weight: map-get($font-weights, reguler);
+      border-radius: 12px;
+    }
+    span {
+      display: inline-block;
+      color: rgb(77, 75, 75);
+      opacity: 0.8;
+      font-size: 14px;
+      margin-top: 10px;
+      a {
+        text-decoration: none;
+        font-size: 16px;
+        color: $kuning;
+        font-weight: map-get($font-weights, bold);
+      }
+    }
+  }
+}
