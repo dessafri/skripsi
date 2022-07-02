@@ -1,0 +1,39 @@
+@import '../colors';
+@import '../fonts';
+
+$sidebar-collapse-width: 6.5rem !important;
+$sidebar-width: 15rem !important;
+
+.sidebar {
+  width: $sidebar-width;
+  min-height: 100vh;
+  background-color: $main-color;
+  font-family: $font-family;
+
+  a {
+    text-decoration: none;
+  }
+  .sidebar-text {
+    color: white;
+    font-weight: map-get($font-weights, reguler);
+    margin: 0 1rem 1rem;
+    font-size: 14px;
+  }
+  .sidebar-title {
+    color: white;
+    font-size: 18px;
+    font-weight: map-get($font-weights, bold);
+    display: block;
+    width: 100%;
+    span {
+      display: inline-block;
+      text-align: left;
+      font-size: 28px;
+    }
+  }
+
+  hr.sidebar-bagi {
+    margin: 0 1rem 1rem;
+    opacity: 0.5;
+  }
+}

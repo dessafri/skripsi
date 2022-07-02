@@ -1,5 +1,7 @@
 @import './login';
 @import './register';
+@import './navs/sidebar';
+@import './typo';
 
 html {
   margin: 0;
@@ -8,4 +10,126 @@ html {
 
 #wrapper {
   display: flex;
+  width: 100%;
+
+  .main {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    .laporan,
+    .hasil,
+    .kuesioner {
+      h2 {
+        font-size: 20px;
+        width: 100%;
+      }
+      margin-top: 20px;
+      .card {
+        margin-top: 15px;
+      }
+      min-width: 100%;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .laporan {
+      .card {
+        h3 {
+          font-size: 18px;
+          font-weight: map-get($font-weights, bold);
+        }
+        h4 {
+          font-size: 14px;
+          opacity: 0.7;
+        }
+        h3,
+        h4 {
+          letter-spacing: 0.7px;
+        }
+      }
+    }
+    .hasil {
+      .card {
+        span {
+          display: inline-block;
+          font-size: 12px;
+          font-weight: map-get($font-weights, bold);
+          opacity: 0.6;
+        }
+        h3 {
+          font-size: 18px;
+          font-weight: map-get($font-weights, bold);
+        }
+        h4 {
+          font-size: 12px;
+          opacity: 0.8;
+        }
+        h4 span {
+          display: inline-block;
+          font-weight: map-get($font-weights, bold);
+          font-size: 14px;
+          opacity: 1;
+        }
+        h4.pertahankan {
+          span {
+            color: green;
+          }
+        }
+        h4.pertimbangkan {
+          span {
+            color: yellow;
+          }
+        }
+        h4.perbaiki {
+          span {
+            color: red;
+          }
+        }
+        h4.berlebihan {
+          span {
+            color: blue;
+          }
+        }
+      }
+    }
+    .indikator-sekolah {
+      display: flex;
+      justify-content: space-around;
+      .card {
+        margin-top: 20px;
+        border: none;
+        width: 20rem;
+        h2 {
+          font-size: 18px;
+          margin-bottom: 10px;
+        }
+      }
+    }
+    .kuesioner {
+      margin-bottom: 50px;
+      .card {
+        h3 {
+          font-size: 16px;
+          font-weight: map-get($font-weights, bold);
+        }
+        h4 {
+          font-size: 12px;
+          opacity: 0.7;
+        }
+        h3,
+        h4 {
+          letter-spacing: 0.7px;
+        }
+      }
+    }
+
+    .footer {
+      width: 100%;
+      min-height: 50px;
+      p {
+        opacity: 0.7;
+      }
+    }
+  }
 }

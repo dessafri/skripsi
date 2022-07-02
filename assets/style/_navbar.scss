@@ -1,12 +1,33 @@
 @import './fonts';
 @import './typo';
 @import './colors';
-.navbar {
-  margin: 0;
+.navigation {
   padding: 0;
-  .navbar-brand {
-    font-family: $font-family;
-    font-size: 26px;
-    font-weight: map-get($font-weights, bold);
+  margin: auto;
+  min-width: 100%;
+  font-family: $font-family;
+  border-bottom: 1px solid rgba($color: #000000, $alpha: 0.2);
+  .navbar {
+    margin: 0;
+    padding: 0;
+    .navbar-brand {
+      font-family: $font-family;
+      font-size: 28px;
+      padding-bottom: 0;
+      font-weight: map-get($font-weights, bold);
+    }
+  }
+  span {
+    display: inline-block;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding-top: 0;
+  }
+  .btn {
+    margin: 10%;
+  }
+  span,
+  .btn {
+    margin-bottom: 20px;
   }
 }

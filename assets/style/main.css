@@ -2,15 +2,41 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
-.navbar {
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
+.navigation {
+  padding: 0;
+  margin: auto;
+  min-width: 100%;
+  font-family: "Open Sans", sans-serif;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.navigation .navbar {
   margin: 0;
   padding: 0;
 }
 
-.navbar .navbar-brand {
+.navigation .navbar .navbar-brand {
   font-family: "Open Sans", sans-serif;
-  font-size: 26px;
+  font-size: 28px;
+  padding-bottom: 0;
   font-weight: 700;
+}
+
+.navigation span {
+  display: inline-block;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding-top: 0;
+}
+
+.navigation .btn {
+  margin: 10%;
+}
+
+.navigation span,
+.navigation .btn {
+  margin-bottom: 20px;
 }
 
 .btn-main, .main .formLogin .btn, .main .formRegister .btn {
@@ -76,15 +102,40 @@
   font-weight: 700;
 }
 
-.navbar {
+.navigation {
+  padding: 0;
+  margin: auto;
+  min-width: 100%;
+  font-family: "Open Sans", sans-serif;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.navigation .navbar {
   margin: 0;
   padding: 0;
 }
 
-.navbar .navbar-brand {
+.navigation .navbar .navbar-brand {
   font-family: "Open Sans", sans-serif;
-  font-size: 26px;
+  font-size: 28px;
+  padding-bottom: 0;
   font-weight: 700;
+}
+
+.navigation span {
+  display: inline-block;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding-top: 0;
+}
+
+.navigation .btn {
+  margin: 10%;
+}
+
+.navigation span,
+.navigation .btn {
+  margin-bottom: 20px;
 }
 
 .btn-main, .main .formLogin .btn, .main .formRegister .btn {
@@ -145,8 +196,187 @@
   font-weight: 700;
 }
 
+.sidebar {
+  width: 15rem !important;
+  min-height: 100vh;
+  background-color: #6dafa7;
+  font-family: "Open Sans", sans-serif;
+}
+
+.sidebar a {
+  text-decoration: none;
+}
+
+.sidebar .sidebar-text {
+  color: white;
+  margin: 0 1rem 1rem;
+  font-size: 14px;
+}
+
+.sidebar .sidebar-title {
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  display: block;
+  width: 100%;
+}
+
+.sidebar .sidebar-title span {
+  display: inline-block;
+  text-align: left;
+  font-size: 28px;
+}
+
+.sidebar hr.sidebar-bagi {
+  margin: 0 1rem 1rem;
+  opacity: 0.5;
+}
+
 html {
   margin: 0;
   padding: 0;
+}
+
+#wrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  width: 100%;
+}
+
+#wrapper .main {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#wrapper .main .laporan,
+#wrapper .main .hasil,
+#wrapper .main .kuesioner {
+  margin-top: 20px;
+  min-width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+#wrapper .main .laporan h2,
+#wrapper .main .hasil h2,
+#wrapper .main .kuesioner h2 {
+  font-size: 20px;
+  width: 100%;
+}
+
+#wrapper .main .laporan .card,
+#wrapper .main .hasil .card,
+#wrapper .main .kuesioner .card {
+  margin-top: 15px;
+}
+
+#wrapper .main .laporan .card h3 {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+#wrapper .main .laporan .card h4 {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+#wrapper .main .laporan .card h3,
+#wrapper .main .laporan .card h4 {
+  letter-spacing: 0.7px;
+}
+
+#wrapper .main .hasil .card span {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.6;
+}
+
+#wrapper .main .hasil .card h3 {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+#wrapper .main .hasil .card h4 {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+#wrapper .main .hasil .card h4 span {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 14px;
+  opacity: 1;
+}
+
+#wrapper .main .hasil .card h4.pertahankan span {
+  color: green;
+}
+
+#wrapper .main .hasil .card h4.pertimbangkan span {
+  color: yellow;
+}
+
+#wrapper .main .hasil .card h4.perbaiki span {
+  color: red;
+}
+
+#wrapper .main .hasil .card h4.berlebihan span {
+  color: blue;
+}
+
+#wrapper .main .indikator-sekolah {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+}
+
+#wrapper .main .indikator-sekolah .card {
+  margin-top: 20px;
+  border: none;
+  width: 20rem;
+}
+
+#wrapper .main .indikator-sekolah .card h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+#wrapper .main .kuesioner {
+  margin-bottom: 50px;
+}
+
+#wrapper .main .kuesioner .card h3 {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+#wrapper .main .kuesioner .card h4 {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+#wrapper .main .kuesioner .card h3,
+#wrapper .main .kuesioner .card h4 {
+  letter-spacing: 0.7px;
+}
+
+#wrapper .main .footer {
+  width: 100%;
+  min-height: 50px;
+}
+
+#wrapper .main .footer p {
+  opacity: 0.7;
 }
 /*# sourceMappingURL=main.css.map */
