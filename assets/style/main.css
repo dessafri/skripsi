@@ -31,7 +31,7 @@
 }
 
 .navigation .btn {
-  margin: 10%;
+  margin-top: 15px;
 }
 
 .navigation span,
@@ -130,7 +130,7 @@
 }
 
 .navigation .btn {
-  margin: 10%;
+  margin-top: 15px;
 }
 
 .navigation span,
@@ -248,6 +248,10 @@ html {
   width: 100%;
   margin: 0;
   padding: 0;
+}
+
+#wrapper .main .brand-title {
+  font-size: 20px;
 }
 
 #wrapper .main .laporan,
