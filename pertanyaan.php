@@ -1,3 +1,11 @@
+<?php
+require './functions.php';
+
+$pertanyaan = query(
+    'SELECT pertanyaan.ID_PERTANYAAN,pertanyaan.NAMA_PERTANYAAN,indikator.NAMA_INDIKATOR,pertanyaan.KATEGORI FROM pertanyaan LEFT JOIN indikator ON pertanyaan.ID_INDIKATOR = indikator.ID_INDIKATOR'
+);
+$kategori = query('SELECT * FROM kategori');
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,6 +21,12 @@
         integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="assets/style/main.css" />
+    <style>
+    .swal2-popup {
+        font-size: 12px !important;
+        font-family: Georgia, serif;
+    }
+    </style>
     <title>Kelola Pertanyaan</title>
 </head>
 
@@ -64,25 +78,48 @@
                             <th scope="col" class="text-center">NO</th>
                             <th scope="col" class="text-center">PERTANYAAN</th>
                             <th scope="col" class="text-center">INDIKATOR</th>
+                            <th scope="col" class="text-center">KATEGORI</th>
                             <th scope="col" class="text-center">ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <?php
+                        $nomer = 1;
+                        if (count($pertanyaan) > 0) {
+                            foreach ($pertanyaan as $data): ?>
                         <tr>
-                            <td class="text-center">1</td>
+                            <td class="text-center"><?= $nomer ?></td>
                             <td class="text-center">
-                                Pertanyaan Fasilitas Internet
+                                <?= $data['NAMA_PERTANYAAN'] ?>
                             </td>
-                            <td class="text-center">FASILITAS INTERNET</td>
+                            <td class="text-center"><?= $data[
+                                'NAMA_INDIKATOR'
+                            ] ?></td>
+                            <td class="text-center"><?= $data[
+                                'KATEGORI'
+                            ] ?></td>
                             <td class="text-center">
-                                <button class="btn btn-primary">
+                                <button class="btn btn-primary btn-edit" data-value=<?= $data[
+                                    'ID_PERTANYAAN'
+                                ] ?>>
                                     <i class="fa-solid fa-pencil"></i>
                                 </button>
-                                <button class="btn btn-danger">
+                                <button class="btn btn-danger btn-hapus" data-value=<?= $data[
+                                    'ID_PERTANYAAN'
+                                ] ?>>
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </td>
                         </tr>
+                        <?php $nomer++;endforeach;
+                        } else {
+                            echo '
+                            <tr>
+                            <td class="text-center" colspan=5>Data Kosong</td>
+                        </tr>
+                        ';
+                        }
+                        ?>
                     </tbody>
                 </table>
             </div>
@@ -96,7 +133,7 @@
 
     <!-- modal -->
     <div class="modal fade" id="pertanyaanmodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">
@@ -107,91 +144,167 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="" method="post">
-                        <div class="form-group">
-                            <label for="indikatorselect">
-                                Pilih Indikator Untuk Pertanyaan
-                            </label>
-                            <select class="form-control" id="indikatorselect">
-                                <option>-- Silahkan Pilih Indikator Pertanyaan --</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="kategoriselect">
-                                Pilih Kategori Pertanyaan
-                            </label>
-                            <select class="form-control" id="kategoriselect">
-                                <option>-- Silahkan Pilih Kategori Pertanyaan --</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                            </select>
-                            <div class="form-group">
-                                <label for="inputpertanyaan">Pertanyaan</label>
-                                <input type="text" class="form-control" id="inputpertanyaan"
-                                    aria-describedby="emailHelp" />
-                            </div>
-                            <div class="form-group">
-                                <label for="inputpertanyaan">
-                                    Ketentuan Jawaban Kualitas
-                                </label>
-                                <div id="aturan"></div>
-                                <p style="font-size: 14px; margin-bottom: -2px; font-weight: bold;">
-                                    CONTOH
-                                </p>
-                                <span style="display: inline-block; font-size: 12px; opacity: 0.6; padding-top: -5px;">
-                                    Tersedia wifi di setiap ruang kelas maka masuk dalam kategori sangat baik
-                                </span>
-                                <br />
-                                <span style="display: inline-block; font-size: 12px; opacity: 0.6; padding-top: -5px;">
-                                    Tersedia wifi di lebih dari 10 titik maka masuk kategori cukup baik
-                                </span>
-                                <br />
-                                <span style="display: inline-block; font-size: 12px; opacity: 0.6; padding-top: -5px;">
-                                    Tersedia wifi lebih dari 5-10 titik maka masuk kategori baik
-                                </span>
-                                <br />
-                                <span style="display: inline-block; font-size: 12px; opacity: 0.6; padding-top: -5px;">
-                                    Tersedia wifi kurang dari 5 titik maka masuk kategori kurang baik
-                                </span>
-                                <br />
-                                <span style="display: inline-block; font-size: 12px; opacity: 0.6; padding-top: -5px;">
-                                    Tidak tersedia wifi maka masuk kategori sangat kurang baik
-                                </span>
-                            </div>
-                            <div class="form-group">
-                                <label for="kategoriselect">
-                                    Pilih Kategori Pertanyaan
-                                </label>
-                                <select class="form-control" id="kategoriselect">
-                                    <option>-- Silahkan Pilih Kategori Pertanyaan --</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
-                                </select>
-                                <div class="form-group">
-                                    <label for="inputpertanyaan">Pertanyaan</label>
-                                    <input type="text" class="form-control" id="inputpertanyaan"
-                                        aria-describedby="emailHelp" />
-                                </div>
-                            </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        Tutup
-                    </button>
-                    <button type="button" class="btn btn-primary">Buat Pertanyaan</button>
+                    <div class="form-group form1">
+                        <label for="indikatorselect">
+                            Pilih Indikator Untuk Pertanyaan
+                        </label>
+                        <select class="form-control" id="indikatorselect">
+                            <option value="0">-- Silahkan Pilih Indikator Pertanyaan --</option>
+                            <?php
+                            $indikator = query('SELECT * FROM indikator');
+                            foreach ($indikator as $data): ?>
+                            <option value=<?= $data[
+                                'ID_INDIKATOR'
+                            ] ?>><?= $data['NAMA_INDIKATOR'] ?></option>
+                            <?php endforeach;
+                            ?>
+                        </select>
+                    </div>
+                    <div class="form-group form2">
+                        <label for="inputkualitas" class="labelKualitas">Silahkan Masukkan Pertanyaan Kualitas</label>
+                        <input type="text" class="form-control" id="inputkualitas"
+                            placeholder="Bagaimana Kualitas Indikator Tersebut" disabled>
+                    </div>
+                    <div class="ketentuanKualitas">
+                        <table class="table table-borderless">
+                            <thead>
+                                <tr>
+                                    <th width="30%">Kategori Jawaban</th>
+                                    <th width="70%" class="text-center">Kriteria Jawaban</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <td>SANGAT BAIK NILAI 5</td>
+                                <td>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" id="inputSangatBaikKualitas"
+                                            placeholder="Jika ....">
+                                    </div>
+                                </td>
+                                </tr>
+                                <tr>
+                                    <td>BAIK NILAI 4</td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" id="inputBaikKualitas"
+                                                placeholder="Jika ....">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>CUKUP BAIK NILAI 3</td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" id="inputCukupBaikKualitas"
+                                                placeholder="Jika ....">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>TIDAK BAIK NILAI 2</td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" id="inputTidakBaikKualitas"
+                                                placeholder="Jika ....">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>SANGAT TIDAK BAIK NILAI 1</td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" id="inputSangatTidakBaikKualitas"
+                                                placeholder="Jika ....">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-group form3">
+                        <label for="inputkepentingan" class="labelKepentingan">Silahkan Masukkan Pertanyaan
+                            Kepentingan</label>
+                        <input type="text" class="form-control" id="inputkepentingan"
+                            placeholder="Seberapa Penting Indikator Tersebut" disabled>
+                    </div>
+                    <div class="ketentuanKepentingan">
+                        <table class="table table-borderless">
+                            <thead>
+                                <tr>
+                                    <th width="30%">Kategori Jawaban</th>
+                                    <th width="70%" class="text-center">Kriteria Jawaban</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <td>SANGAT PENTING NILAI 5</td>
+                                <td>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" id="inputSangatPentingKepentingan"
+                                            placeholder="Jika ....">
+                                    </div>
+                                </td>
+                                </tr>
+                                <tr>
+                                    <td>PENTING NILAI 4</td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" id="inputPentingKepentingan"
+                                                placeholder="Jika ....">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>CUKUP PENTING NILAI 3</td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" id="inputCukupPentingKepentingan"
+                                                placeholder="Jika ....">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>TIDAK PENTING NILAI 2</td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" id="inputTidakPentingKepentingan"
+                                                placeholder="Jika ....">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>SANGAT TIDAK PENTING NILAI 1</td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control"
+                                                id="inputSangatTidakPentingKepentingan" placeholder="Jika ....">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="btn-tutup">
+                            Tutup
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="btn-prevKualitas">
+                            Sebelumnya
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="btn-prevKepentingan">
+                            Sebelumnya
+                        </button>
+                        <button type="button" class="btn btn-primary" id="btn-kualitas">Next</button>
+                        <button type="button" class="btn btn-primary" id="btn-kepentingan">Next</button>
+                        <button type="button" class="btn btn-primary" id="btn-addPertanyaan">Buat Pertanyaan</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <div id="modalEdit"></div>
     <!-- Optional JavaScript; choose one of the two! -->
 
     <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
@@ -200,19 +313,659 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js"
         integrity="sha512-6PM0qYu5KExuNcKt5bURAoT6KCThUmHRewN3zUFNaoI6Di7XJPTMoT6K0nsagZKk2OB4L7E3q1uQKHNHd4stIQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.ckeditor.com/ckeditor5/34.2.0/classic/ckeditor.js"></script>
-    <script>
-    ClassicEditor.create(document.querySelector('#aturan'))
-        .then((editor) => {
-            console.log(editor)
-        })
-        .catch((error) => {
-            console.error(error)
-        })
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous">
     </script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    let dataIndikator;
+    $(".ketentuanKepentingan,.ketentuanKualitas").css({
+        display: "none"
+    })
+    $("#btn-tutup,#btn-prevKualitas,#btn-kepentingan,#btn-kualitas,#btn-prevKepentingan,#btn-addPertanyaan")
+        .css({
+            display: "none"
+        })
+    $("#btn-tutup,#btn-kualitas")
+        .css({
+            display: "block"
+        })
+    $("#indikatorselect").on("change", function() {
+        let valueSelect = $("#indikatorselect").find(":selected").val();
+        if (valueSelect > 0) {
+            $("#inputkualitas,#inputkepentingan").removeAttr("disabled")
+        } else {
+            $("#inputkualitas,#inputkepentingan").attr("disabled", "disabled")
+        }
+    })
+
+    $("#btn-kualitas").on("click", function() {
+        let pertanyaanKualitas = $("#inputkualitas").val();
+        let pertanyaanKepentingan = $("#inputkepentingan").val();
+        let indikator = $("#indikatorselect").val();
+        if (pertanyaanKualitas === " " || pertanyaanKepentingan === " " || indikator == 0) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Harap Mengisi Semua Form',
+                icon: 'error',
+                position: "top",
+                showConfirmButton: true
+            })
+        } else if (pertanyaanKualitas.length == 0 || pertanyaanKepentingan.length == 0) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Harap Mengisi Semua Form',
+                icon: 'error',
+                position: "top",
+                showConfirmButton: true
+            })
+        } else {
+            dataIndikator = indikator;
+            // langkah pertama menghilangkan form indikator dan kepentingan dan mengganti tombol tutup
+            $(".form1").css({
+                display: "none",
+            })
+            $("#inputkualitas").attr("disabled", "disabled")
+            $(".labelKualitas").html("Pertanyaan Kualitas")
+            $("#inputkepentingan,.labelKepentingan").css({
+                display: "none"
+            })
+            $(".btn-nav").addClass("btn-prevKualitas")
+            // langkah kedua memunculkan form ketentuan untuk kualitas
+            $(".ketentuanKualitas").css({
+                display: "block"
+            })
+            $("#btn-tutup,#btn-prevKualitas,#btn-kepentingan,#btn-kualitas,#btn-prevKepentingan,#btn-addPertanyaan")
+                .css({
+                    display: "none"
+                })
+            $("#btn-prevKualitas,#btn-kepentingan")
+                .css({
+                    display: "block"
+                })
+        }
+    })
+    $("#btn-kepentingan").on("click", function(e) {
+        let jawaban5 = $("#inputSangatBaikKualitas").val();
+        let jawaban4 = $("#inputBaikKualitas").val();
+        let jawaban3 = $("#inputCukupBaikKualitas").val();
+        let jawaban2 = $("#inputTidakBaikKualitas").val();
+        let jawaban1 = $("#inputSangatTidakBaikKualitas").val();
+
+        if (jawaban1 === " " || jawaban2 === " " || jawaban3 === " " || jawaban4 === " " || jawaban5 ===
+            " ") {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Harap Mengisi Semua Form',
+                icon: 'error',
+                position: "top",
+                showConfirmButton: true
+            })
+        } else if (jawaban1.length == 0 || jawaban1.length == 0 || jawaban3.length == 0 || jawaban4
+            .length == 0 || jawaban5.length == 0) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Harap Mengisi Semua Form',
+                icon: 'error',
+                position: "top",
+                showConfirmButton: true
+            })
+        } else {
+            $(".ketentuanKepentingan").css({
+                display: "block"
+            })
+            $(".ketentuanKualitas").css({
+                display: "none"
+            })
+            $("#inputkualitas,.labelKualitas").css({
+                display: "none"
+            })
+            $("#inputkepentingan,.labelKepentingan").css({
+                display: "block"
+            })
+            $("#inputkepentingan").attr("disabled", "disabled")
+            $(".labelKepentingan").html("Pertanyaan Kepentingan")
+            $("#btn-tutup,#btn-prevKualitas,#btn-kepentingan,#btn-kualitas,#btn-prevKepentingan,#btn-addPertanyaan")
+                .css({
+                    display: "none"
+                })
+            $("#btn-prevKepentingan,#btn-addPertanyaan")
+                .css({
+                    display: "block"
+                })
+        }
+    })
+    $("#btn-prevKepentingan").on("click", function() {
+        $(".ketentuanKepentingan").css({
+            display: "none"
+        })
+        $(".ketentuanKualitas").css({
+            display: "block"
+        })
+        $("#inputkualitas,.labelKualitas").css({
+            display: "block"
+        })
+        $("#inputkepentingan,.labelKepentingan").css({
+            display: "none"
+        })
+        $("#inputkualitas").attr("disabled", "disabled")
+        $(".labelKualitas").html("Pertanyaan Kualitas")
+        $("#btn-tutup,#btn-prevKualitas,#btn-kepentingan,#btn-kualitas,#btn-prevKepentingan,#btn-addPertanyaan")
+            .css({
+                display: "none"
+            })
+        $("#btn-prevKualitas,#btn-kepentingan")
+            .css({
+                display: "block"
+            })
+    })
+    $("#btn-prevKualitas").on("click", function() {
+        $(".form1").css({
+            display: "block",
+        })
+        $("#inputkualitas").removeAttr("disabled")
+        $("#inputkepentingan").removeAttr("disabled")
+        $(".labelKualitas").html("Silahkan Masukkan Pertanyaan Kualitas")
+        $("#inputkepentingan,.labelKepentingan").css({
+            display: "block"
+        })
+        $(".ketentuanKepentingan,.ketentuanKualitas").css({
+            display: "none"
+        })
+        $("#btn-tutup,#btn-prevKualitas,#btn-kepentingan,#btn-kualitas,#btn-prevKepentingan,#btn-addPertanyaan")
+            .css({
+                display: "none"
+            })
+        $("#btn-tutup,#btn-kualitas")
+            .css({
+                display: "block"
+            })
+    })
+    $("#btn-addPertanyaan").on("click", function() {
+        let jawaban5 = $("#inputSangatPentingKepentingan").val();
+        let jawaban4 = $("#inputPentingKepentingan").val();
+        let jawaban3 = $("#inputCukupPentingKepentingan").val();
+        let jawaban2 = $("#inputTidakPentingKepentingan").val();
+        let jawaban1 = $("#inputSangatTidakPentingKepentingan").val();
+
+        if (jawaban1 === " " || jawaban2 === " " || jawaban3 === " " || jawaban4 === " " || jawaban5 ===
+            " ") {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Harap Mengisi Semua Form',
+                icon: 'error',
+                position: "top",
+                showConfirmButton: true
+            })
+        } else if (jawaban1.length == 0 || jawaban1.length == 0 || jawaban3.length == 0 || jawaban4
+            .length == 0 || jawaban5.length == 0) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Harap Mengisi Semua Form',
+                icon: 'error',
+                position: "top",
+                showConfirmButton: true
+            })
+        } else {
+            let pertanyaanKualitas = $("#inputkualitas").val();
+            let pertanyaanKepentingan = $("#inputkepentingan").val();
+            let idIndkator = dataIndikator;
+            let jawaban5kualitas = $("#inputSangatBaikKualitas").val();
+            let jawaban4kualitas = $("#inputBaikKualitas").val();
+            let jawaban3kualitas = $("#inputCukupBaikKualitas").val();
+            let jawaban2kualitas = $("#inputTidakBaikKualitas").val();
+            let jawaban1kualitas = $("#inputSangatTidakBaikKualitas").val();
+            let jawaban5kepentingan = $("#inputSangatPentingKepentingan").val();
+            let jawaban4kepentingan = $("#inputPentingKepentingan").val();
+            let jawaban3kepentingan = $("#inputCukupPentingKepentingan").val();
+            let jawaban2kepentingan = $("#inputTidakPentingKepentingan").val();
+            let jawaban1kepentingan = $("#inputSangatTidakPentingKepentingan").val();
+
+            let formData = new FormData
+            formData.append("id_indikator", idIndkator)
+            formData.append("pKualitas", pertanyaanKualitas)
+            formData.append("pKepentingan", pertanyaanKepentingan)
+            formData.append("j5kualitas", jawaban5kualitas)
+            formData.append("j4kualitas", jawaban4kualitas)
+            formData.append("j3kualitas", jawaban3kualitas)
+            formData.append("j2kualitas", jawaban2kualitas)
+            formData.append("j1kualitas", jawaban1kualitas)
+            formData.append("j5kepentingan", jawaban5kepentingan)
+            formData.append("j4kepentingan", jawaban4kepentingan)
+            formData.append("j3kepentingan", jawaban3kepentingan)
+            formData.append("j2kepentingan", jawaban2kepentingan)
+            formData.append("j1kepentingan", jawaban1kepentingan)
+
+            fetch("buatPertanyaan.php", {
+                method: "POST",
+                body: formData
+            }).then(response => {
+                return response.json()
+            }).then(responseJson => {
+                Swal.fire({
+                    title: 'Sukses!',
+                    text: 'Pertanyaan Berhasil Dibuat',
+                    icon: 'success',
+                    position: "top",
+                    showConfirmButton: false
+                })
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 1000);
+            })
+        }
+    })
+    $(".btn-hapus").on("click", function() {
+        let dataid = $(this).attr("data-value")
+        let dataid2;
+        let cekdataid = dataid % 2 == 0;
+        if (cekdataid == true) {
+            dataid2 = parseInt(dataid) - 1
+        } else {
+            dataid2 = parseInt(dataid) + 1
+        }
+        Swal.fire({
+            icon: "warning",
+            position: "top",
+            title: "Apakah anda yakin ?",
+            text: "Data Pertanyaan Kualitas Dan Kepentingan Akan Terhapus",
+            showConfirmButton: true,
+            showCancelButton: true,
+            reverseButtons: true
+        }).then((result => {
+            if (result.isConfirmed) {
+                let formData = new FormData
+                formData.append("id", dataid);
+                formData.append("id2", dataid2);
+                fetch("hapuspertanyaan.php", {
+                    method: "POST",
+                    body: formData
+                }).then(response => {
+                    return response.json()
+                }).then(responseJson => {
+                    Swal.fire({
+                        title: 'Terhapus!',
+                        text: 'Pertanyaan Berhasil Dihapus',
+                        icon: 'success',
+                        position: "top",
+                        showConfirmButton: false
+                    })
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 1000);
+                })
+            }
+        }))
+    })
+    $(".btn-edit").on("click", function() {
+        let dataid = $(this).attr("data-value")
+        let formData = new FormData();
+        formData.append("id", dataid);
+        fetch('dataperpertanyaan.php', {
+            method: "POST",
+            body: formData
+        }).then(response => {
+            return response.json();
+        }).then(responseJson => {
+            let data = responseJson;
+            console.log(data);
+            let dataKualitas = data[0];
+            let pertanyaan = dataKualitas.NAMA_PERTANYAAN;
+            if (data[0].KATEGORI == "KUALITAS") {
+                $("#modalEdit").html(`
+                    <div class="modal fade" id="editpertanyaanmodalKualitas" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">
+                                        FORM UPDATE PERTANYAAN
+                                    </h5>
+                                    <button type="button" class="close closeModal" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group form1">
+                                        <label for="indikatorselect">
+                                            Pilih Indikator Untuk Pertanyaan
+                                        </label>
+                                        <select class="form-control" id="indikatorselectEditKualitas">
+                                            <option value="0">-- Silahkan Pilih Indikator Pertanyaan --</option>
+                                            <?php
+                                            $indikator = query(
+                                                'SELECT * FROM indikator'
+                                            );
+                                            foreach ($indikator as $data): ?>
+                                            <option value=<?= $data[
+                                                'ID_INDIKATOR'
+                                            ] ?>><?= $data[
+    'NAMA_INDIKATOR'
+] ?></option>
+                                            <?php endforeach;
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="form-group form2">
+                                        <label for="inputkualitas" class="labelKualitas">Silahkan Masukkan Pertanyaan Kualitas</label>
+                                        <input type="text" class="form-control" id="inputkualitasEdit" value="${pertanyaan}">
+                                    </div>
+                                    <div class="ketentuanKualitas">
+                                        <table class="table table-borderless">
+                                            <thead>
+                                                <tr>
+                                                    <th width="30%">Kategori Jawaban</th>
+                                                    <th width="70%" class="text-center">Kriteria Jawaban</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <td>SANGAT BAIK NILAI 5</td>
+                                                <td>
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control" data-id="${data[0].ID_KETENTUAN_JAWABAN}" id="inputSangatBaikKualitasEdit"
+                                                            value="${data[0].KETENTUAN_JAWABAN}">
+                                                    </div>
+                                                </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>BAIK NILAI 4</td>
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" id="inputBaikKualitasEdit" data-id="${data[1].ID_KETENTUAN_JAWABAN}" value="${data[1].KETENTUAN_JAWABAN}">
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>CUKUP BAIK NILAI 3</td>
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" data-id="${data[2].ID_KETENTUAN_JAWABAN}" id="inputCukupBaikKualitasEdit"
+                                                                value="${data[2].KETENTUAN_JAWABAN}">
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>TIDAK BAIK NILAI 2</td>
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" data-id="${data[3].ID_KETENTUAN_JAWABAN}" id="inputTidakBaikKualitasEdit"
+                                                                value="${data[3].KETENTUAN_JAWABAN}">
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>SANGAT TIDAK BAIK NILAI 1</td>
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" data-id="${data[4].ID_KETENTUAN_JAWABAN}" id="inputSangatTidakBaikKualitasEdit"
+                                                                value="${data[4].KETENTUAN_JAWABAN}">
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary closeModal" data-dismiss="modal" id="btn-tutup">
+                                            Tutup
+                                        </button>
+                                        <button type="button" class="btn btn-primary" id="updateKualitas">Update Pertanyaan</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `)
+                $("#editpertanyaanmodalKualitas").modal("show");
+                $("#indikatorselectEditKualitas").val(dataKualitas.ID_INDIKATOR);
+                $("#updateKualitas").on("click", function() {
+                    let indikator = $("#indikatorselectEditKualitas").val()
+                    let pertanyaan = $("#inputkualitasEdit").val()
+                    let ketentuan5 = $("#inputSangatBaikKualitasEdit").val();
+                    let ketentuan4 = $("#inputSangatBaikKualitasEdit").val();
+                    let ketentuan3 = $("#inputSangatBaikKualitasEdit").val();
+                    let ketentuan2 = $("#inputSangatBaikKualitasEdit").val();
+                    let ketentuan1 = $("#inputSangatBaikKualitasEdit").val();
+                    let id5 = $("#inputSangatBaikKualitasEdit").attr("data-id");
+                    let id4 = $("#inputSangatBaikKualitasEdit").attr("data-id");
+                    let id3 = $("#inputSangatBaikKualitasEdit").attr("data-id");
+                    let id2 = $("#inputSangatBaikKualitasEdit").attr("data-id");
+                    let id1 = $("#inputSangatBaikKualitasEdit").attr("data-id");
+
+                    if (indikator == 0 || pertanyaan.length == 0 || ketentuan1 == 0 ||
+                        ketentuan2 == 0 || ketentuan3 == 0 || ketentuan4 == 0 || ketentuan5 == 0
+                    ) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Silahkan Cek Kembali Isi Form',
+                            icon: 'error',
+                            position: "top",
+                        })
+                    } else if (pertanyaan === " " || ketentuan1 === " " ||
+                        ketentuan2 === " " || ketentuan3 === " " || ketentuan4 === " " ||
+                        ketentuan5 === " ") {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Silahkan Cek Kembali Isi Form',
+                            icon: 'error',
+                            position: "top",
+                        })
+                    } else {
+                        let formData = new FormData
+                        formData.append("idPertanyaan", dataid);
+                        formData.append("pertanyaan", pertanyaan);
+                        formData.append("indikator", indikator);
+                        formData.append("j5ketentuan", ketentuan5)
+                        formData.append("j4ketentuan", ketentuan4)
+                        formData.append("j3ketentuan", ketentuan3)
+                        formData.append("j2ketentuan", ketentuan2)
+                        formData.append("j1ketentuan", ketentuan1)
+                        formData.append("id5", id5)
+                        formData.append("id4", id4)
+                        formData.append("id3", id3)
+                        formData.append("id2", id2)
+                        formData.append("id1", id1)
+
+                        fetch("editpertanyaan.php", {
+                            method: "POST",
+                            body: formData
+                        }).then(response => {
+                            return response.json()
+                        }).then(responseJson => {
+                            Swal.fire({
+                                title: 'Sukses!',
+                                text: 'Pertanyaan Berhasil Di Update',
+                                icon: 'success',
+                                position: "top",
+                                showConfirmButton: false
+                            })
+                            setTimeout(() => {
+                                window.location.reload(true);
+                            }, 1000);
+                        })
+                    }
+                })
+            } else {
+                $("#modalEdit").html(`
+                    <div class="modal fade" id="editpertanyaanmodalKepentingan" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">
+                                        FORM UPDATE PERTANYAAN
+                                    </h5>
+                                    <button type="button" class="close closeModal" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group form1">
+                                        <label for="indikatorselect">
+                                            Pilih Indikator Untuk Pertanyaan
+                                        </label>
+                                        <select class="form-control" id="indikatorselectEditKepentingan">
+                                            <option value="0">-- Silahkan Pilih Indikator Pertanyaan --</option>
+                                            <?php
+                                            $indikator = query(
+                                                'SELECT * FROM indikator'
+                                            );
+                                            foreach ($indikator as $data): ?>
+                                            <option value=<?= $data[
+                                                'ID_INDIKATOR'
+                                            ] ?>><?= $data[
+    'NAMA_INDIKATOR'
+] ?></option>
+                                            <?php endforeach;
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="form-group form3">
+                                        <label for="inputkepentinganEdit" class="labelKepentingan">Silahkan Masukkan Pertanyaan
+                                            Kepentingan</label>
+                                        <input type="text" class="form-control" id="inputkepentinganEdit" value="${data[0].NAMA_PERTANYAAN}">
+                                    </div>
+                                    <div class="ketentuanKepentingan">
+                                        <table class="table table-borderless">
+                                            <thead>
+                                                <tr>
+                                                    <th width="30%">Kategori Jawaban</th>
+                                                    <th width="70%" class="text-center">Kriteria Jawaban</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <td>SANGAT PENTING NILAI 5</td>
+                                                <td>
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control" data-id="${data[0].ID_KETENTUAN_JAWABAN}" id="inputSangatPentingKepentinganEdit"
+                                                            value="${data[0].KETENTUAN_JAWABAN}">
+                                                    </div>
+                                                </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>PENTING NILAI 4</td>
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" data-id="${data[1].ID_KETENTUAN_JAWABAN}" id="inputPentingKepentinganEdit"
+                                                                value="${data[1].KETENTUAN_JAWABAN}">
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>CUKUP PENTING NILAI 3</td>
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" data-id="${data[2].ID_KETENTUAN_JAWABAN}" id="inputCukupPentingKepentinganEdit"
+                                                                value="${data[2].KETENTUAN_JAWABAN}">
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>TIDAK PENTING NILAI 2</td>
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" data-id="${data[3].ID_KETENTUAN_JAWABAN}" id="inputTidakPentingKepentinganEdit"
+                                                                value="${data[3].KETENTUAN_JAWABAN}">
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>SANGAT TIDAK PENTING NILAI 1</td>
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control"
+                                                                id="inputSangatTidakPentingKepentinganEdit" data-id="${data[4].ID_KETENTUAN_JAWABAN}" value="${data[4].KETENTUAN_JAWABAN}">
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary closeModal" data-dismiss="modal" id="btn-tutup">
+                                            Tutup
+                                        </button>
+                                        <button type="button" class="btn btn-primary" id="btn-updateKepentingan">Update Pertanyaan</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `)
+                $("#editpertanyaanmodalKepentingan").modal("show");
+                $("#indikatorselectEditKepentingan").val(dataKualitas.ID_INDIKATOR);
+                $("#btn-updateKepentingan").on("click", function() {
+                    let indikator = $("#indikatorselectEditKepentingan").val()
+                    let pertanyaan = $("#inputkepentinganEdit").val()
+                    let ketentuan5 = $("#inputSangatPentingKepentinganEdit").val();
+                    let ketentuan4 = $("#inputPentingKepentinganEdit").val();
+                    let ketentuan3 = $("#inputCukupPentingKepentinganEdit").val();
+                    let ketentuan2 = $("#inputTidakPentingKepentinganEdit").val();
+                    let ketentuan1 = $("#inputSangatTidakPentingKepentinganEdit").val();
+                    let id5 = $("#inputSangatPentingKepentinganEdit").attr("data-id");
+                    let id4 = $("#inputPentingKepentinganEdit").attr("data-id");
+                    let id3 = $("#inputCukupPentingKepentinganEdit").attr("data-id");
+                    let id2 = $("#inputTidakPentingKepentinganEdit").attr("data-id");
+                    let id1 = $("#inputSangatTidakPentingKepentinganEdit").attr("data-id");
+
+                    if (indikator == 0 || pertanyaan.length == 0 || ketentuan1 == 0 ||
+                        ketentuan2 == 0 || ketentuan3 == 0 || ketentuan4 == 0 || ketentuan5 == 0
+                    ) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Silahkan Cek Kembali Isi Form',
+                            icon: 'error',
+                            position: "top",
+                        })
+                    } else if (pertanyaan === " " || ketentuan1 === " " ||
+                        ketentuan2 === " " || ketentuan3 === " " || ketentuan4 === " " ||
+                        ketentuan5 === " ") {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Silahkan Cek Kembali Isi Form',
+                            icon: 'error',
+                            position: "top",
+                        })
+                    } else {
+                        let formData = new FormData
+                        formData.append("idPertanyaan", dataid);
+                        formData.append("pertanyaan", pertanyaan);
+                        formData.append("indikator", indikator);
+                        formData.append("j5ketentuan", ketentuan5)
+                        formData.append("j4ketentuan", ketentuan4)
+                        formData.append("j3ketentuan", ketentuan3)
+                        formData.append("j2ketentuan", ketentuan2)
+                        formData.append("j1ketentuan", ketentuan1)
+                        formData.append("id5", id5)
+                        formData.append("id4", id4)
+                        formData.append("id3", id3)
+                        formData.append("id2", id2)
+                        formData.append("id1", id1)
+
+                        fetch("editpertanyaan.php", {
+                            method: "POST",
+                            body: formData
+                        }).then(response => {
+                            return response.json()
+                        }).then(responseJson => {
+                            Swal.fire({
+                                title: 'Sukses!',
+                                text: 'Pertanyaan Berhasil Di Update',
+                                icon: 'success',
+                                position: "top",
+                                showConfirmButton: false
+                            })
+                            setTimeout(() => {
+                                window.location.reload(true);
+                            }, 1000);
+                        })
+                    }
+                })
+            }
+        })
+    })
+    </script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/34.2.0/classic/ckeditor.js"></script>
 </body>
 
 </html>

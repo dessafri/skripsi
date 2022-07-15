@@ -11,12 +11,6 @@
     </li>
     <hr class="sidebar-bagi" />
     <li class="nav-item">
-        <a class="nav-link sidebar-text" href="kuesioner.php">
-            <span>Kelola Kuesioner</span>
-        </a>
-    </li>
-    <hr class="sidebar-bagi" />
-    <li class="nav-item">
         <a class="nav-link sidebar-text" href="pertanyaan.php">
             <span>Kelola Pertanyaan</span>
         </a>
@@ -31,12 +25,6 @@
     <li class="nav-item">
         <a class="nav-link sidebar-text" href="hasil.php">
             <span>Kelola Hasil</span>
-        </a>
-    </li>
-    <hr class="sidebar-bagi" />
-    <li class="nav-item">
-        <a class="nav-link sidebar-text" href="kategori.php">
-            <span>Kelola Kategori</span>
         </a>
     </li>
     <hr class="sidebar-bagi" />

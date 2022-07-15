@@ -2,10 +2,7 @@
 require './functions.php';
 
 $datas = query('SELECT * FROM kategori');
-
-if (isset($_POST['submit'])) {
-    putDataKategori($_POST);
-}
+$jmlarray = count($datas);
 ?>
 
 <!DOCTYPE html>
@@ -23,6 +20,12 @@ if (isset($_POST['submit'])) {
         integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="assets/style/main.css" />
+    <style>
+    .swal2-popup {
+        font-size: 12px !important;
+        font-family: Georgia, serif;
+    }
+    </style>
     <title>Kelola Kategori</title>
 </head>
 
@@ -62,12 +65,19 @@ if (isset($_POST['submit'])) {
                     <h2 class="brand-title">
                         DAFTAR KATEGORI
                     </h2>
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#indikatorkategori">
+                    <?php if ($jmlarray == 2) {
+                        echo '<button class="btn btn-primary" disabled data-toggle="modal" data-target="#indikatorkategori">
                         <i class="fa-solid fa-plus"></i>
                         Buat Kategori
-                    </button>
+                    </button>';
+                    } else {
+                        echo '<button class="btn btn-primary" data-toggle="modal" data-target="#indikatorkategori">
+                        <i class="fa-solid fa-plus"></i>
+                        Buat Kategori
+                    </button>';
+                    } ?>
                 </div>
-                <table class="table table-bordered">
+                <table class="table table-bordered" id="tabelKategori">
                     <thead>
                         <tr>
                             <th scope="col" class="text-center">NO</th>
@@ -81,7 +91,7 @@ if (isset($_POST['submit'])) {
                         foreach ($datas as $data): ?>
                         <tr>
                             <td class="text-center"><?= $nomer ?></td>
-                            <td class="text-center">
+                            <td class="text-center" id="kategoriTabel">
                                 <?= $data['NAMA_KATEGORI'] ?>
                             </td>
                             <td class="text-center">
@@ -90,7 +100,9 @@ if (isset($_POST['submit'])) {
                                 ] ?> data-toggle="modal" data-target="#editindikatorsekolah" type="submit">
                                     <i class="fa-solid fa-pencil"></i>
                                 </button>
-                                <button class="btn btn-danger">
+                                <button class="btn btn-danger btn-delete" data-value=<?= $data[
+                                    'ID_KATEGORI'
+                                ] ?>>
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </td>
@@ -121,21 +133,19 @@ if (isset($_POST['submit'])) {
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="" method="post">
+                    <div class="form-group">
                         <div class="form-group">
-                            <div class="form-group">
-                                <label for="inputkategori">Masukkan Nama Kategori</label>
-                                <input type="text" class="form-control" name="nama" id="inputkategori"
-                                    aria-describedby="texthelp" />
-                            </div>
+                            <label for="inputkategori">Masukkan Nama Kategori</label>
+                            <input type="text" class="form-control" name="nama" id="inputkategori"
+                                aria-describedby="texthelp" />
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                Tutup
-                            </button>
-                            <button type="submit" name="submit" class="btn btn-primary">Buat Kategori</button>
-                        </div>
-                    </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Tutup
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-add">Buat Kategori</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -166,9 +176,7 @@ if (isset($_POST['submit'])) {
         }).then(response => {
             return response.json();
         }).then(responseJson => {
-
             let data = responseJson;
-
             let items = data.map(data => `
             <div class="modal" id="editkategori" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -260,6 +268,104 @@ if (isset($_POST['submit'])) {
         })
         e.preventDefault();
     });
+    $(".btn-delete").on("click", function() {
+        let dataid = $(this).attr("data-value")
+        Swal.fire({
+            icon: "warning",
+            position: "top",
+            title: "Apakah anda yakin ?",
+            text: "Data Kategori Akan Terhapus",
+            showConfirmButton: true,
+            showCancelButton: true,
+            reverseButtons: true
+        }).then((result => {
+            if (result.isConfirmed) {
+                let formData = new FormData;
+                formData.append('id', dataid);
+                fetch("hapusKategori.php", {
+                    method: "POST",
+                    body: formData
+                }).then(response => {
+                    return response.json()
+                    console.log(response)
+                }).then(responseJson => {
+                    Swal.fire({
+                        title: 'Terhapus!',
+                        text: 'Kategori Berhasil Dihapus',
+                        icon: 'success',
+                        position: "top",
+                        showConfirmButton: false
+                    })
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 1000);
+                })
+            } else {
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: 'Kategori Gagal Dihapus',
+                    icon: 'error',
+                    position: "top",
+                    showConfirmButton: false
+                })
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 1000);
+            }
+        }))
+    })
+    $(".btn-add").on("click", function() {
+        let kategori = document.getElementsByTagName("td")[1].innerText
+        let namaKategori = kategori.toLowerCase();
+        let nama = $("#inputkategori").val().toLowerCase();
+        console.log(nama);
+        if (nama.length == 0) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Nama Kategori Tidak Boleh Kosong!',
+                icon: 'error',
+                position: "top",
+                showConfirmButton: true
+            })
+        } else if (nama == namaKategori) {
+            Swal.fire({
+                title: 'Error!',
+                text: `Kategori ${kategori} Sudah Tersedia!`,
+                icon: 'error',
+                position: "top",
+                showConfirmButton: true
+            })
+        } else if (nama != "kualitas" && nama != "kepentingan") {
+            Swal.fire({
+                title: 'Error!',
+                text: `Kategori Harus Kualitas atau Kepentingan`,
+                icon: 'error',
+                position: "top",
+                showConfirmButton: true
+            })
+        } else {
+            let nama = $("#inputkategori").val();
+            let formData = new FormData;
+            formData.append("nama", nama);
+            fetch("buatKategori.php", {
+                method: "POST",
+                body: formData
+            }).then(response => {
+                return response.json()
+            }).then(responseJson => {
+                Swal.fire({
+                    title: 'Tersimpan!',
+                    text: 'Kategori Berhasil Dibuat',
+                    icon: 'success',
+                    position: "top",
+                    showConfirmButton: false
+                })
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 1000);
+            })
+        }
+    })
     </script>
 </body>
 

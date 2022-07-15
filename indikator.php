@@ -2,10 +2,12 @@
 require './functions.php';
 
 $datas = query('SELECT * FROM indikator');
+$dataperan = query('SELECT * FROM peran');
 
-if (isset($_POST['submit'])) {
-    putDataIndikator($_POST);
-}
+$peran = query(
+    'SELECT DISTINCT ind.ID_INDIKATOR,p.NAMA_PERAN from (indikator ind left JOIN kriteria_peran kp on ind.ID_INDIKATOR = kp.ID_INDIKATOR) LEFT JOIN peran p on kp.ID_PERAN = p.ID_PERAN'
+);
+var_dump($peran);
 ?>
 
 <!DOCTYPE html>
@@ -23,6 +25,12 @@ if (isset($_POST['submit'])) {
         integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="assets/style/main.css" />
+    <style>
+    .swal2-popup {
+        font-size: 12px !important;
+        font-family: Georgia, serif;
+    }
+    </style>
     <title>Kelola Indikator</title>
 </head>
 
@@ -73,17 +81,24 @@ if (isset($_POST['submit'])) {
                         <tr>
                             <th scope="col" class="text-center">NO</th>
                             <th scope="col" class="text-center">NAMA INDIKATOR</th>
+                            <th scope="col" class="text-center">PERAN</th>
                             <th scope="col" class="text-center">ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php
-                        $nomer = 1;
-                        foreach ($datas as $data): ?>
+                        <?php if (count($datas) > 0) {
+                            $nomer = 1;
+                            $namaperan = [];
+                            foreach ($datas as $data): ?>
+                        <?php array_push($namaperan, $data['ID_INDIKATOR']); ?>
+                        <?php var_dump([$data['ID_INDIKATOR']]); ?>
                         <tr>
                             <td class="text-center"><?= $nomer ?></td>
                             <td class="text-center">
                                 <?= $data['NAMA_INDIKATOR'] ?>
+                            </td>
+                            <td class="text-center">
+                                <?= $data['ID_INDIKATOR'] ?>
                             </td>
                             <td class="text-center">
                                 <button class="btn btn-primary btn-edit" data-value=<?= $data[
@@ -91,13 +106,21 @@ if (isset($_POST['submit'])) {
                                 ] ?> data-toggle="modal" data-target="#editindikator" type="button">
                                     <i class="fa-solid fa-pencil"></i>
                                 </button>
-                                <button class="btn btn-danger">
+                                <button class="btn btn-danger btn-delete" data-value=<?= $data[
+                                    'ID_INDIKATOR'
+                                ] ?>>
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </td>
                         </tr>
                         <?php $nomer++;endforeach;
-                        ?>
+                        } else {
+                            echo '
+                            <tr>
+                            <td class="text-center" colspan=5>Data Kosong</td>
+                        </tr>
+                        ';
+                        } ?>
                     </tbody>
                 </table>
             </div>
@@ -122,34 +145,30 @@ if (isset($_POST['submit'])) {
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="" method="POST">
+                    <div class="form-group">
                         <div class="form-group">
-                            <div class="form-group">
-                                <label for="inputindikator">Masukkan Nama Indikator</label>
-                                <input type="text" class="form-control" name="nama" id="inputindikator"
-                                    aria-describedby="texthelp" />
-                            </div>
+                            <label for="inputindikator">Masukkan Nama Indikator</label>
+                            <input type="text" class="form-control" name="nama" id="inputindikator"
+                                aria-describedby="texthelp" />
                         </div>
-                        <span>Pilih Peran Untuk Indikator</span>
-                        <div class="form-check">
-                            <input class="form-check-input" name="peran[]" type="checkbox" value="S" id="defaultCheck1">
-                            <label class="form-check-label" for="defaultCheck1">
-                                Siswa
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" name="peran[]" type="checkbox" value="G" id="defaultCheck2">
-                            <label class="form-check-label" for="defaultCheck2">
-                                Guru
-                            </label>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                Tutup
-                            </button>
-                            <button type="submit" class="btn btn-primary" name="submit">Buat Indikator</button>
-                        </div>
-                    </form>
+                    </div>
+                    <span>Pilih Peran Untuk Indikator</span>
+                    <?php foreach ($dataperan as $data): ?>
+                    <div class="form-check">
+                        <input class="form-check-input" name="peran[]" type="checkbox" value=<?= $data[
+                            'ID_PERAN'
+                        ] ?> id="defaultCheck1">
+                        <label class="form-check-label" for="defaultCheck1">
+                            <?= $data['NAMA_PERAN'] ?>
+                        </label>
+                    </div>
+                    <?php endforeach; ?>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Tutup
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-add">Buat Indikator</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -178,9 +197,7 @@ if (isset($_POST['submit'])) {
         }).then(response => {
             return response.json();
         }).then(responseJson => {
-
             let data = responseJson;
-
             let items = data.map(data => `
             <div class="modal" id="editindikator" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -203,6 +220,17 @@ if (isset($_POST['submit'])) {
                                                 aria-describedby="texthelp" />
                                         </div>
                                     </div>
+                                    <span>Pilih Peran Untuk Indikator</span>
+                                    <?php foreach ($dataperan as $data): ?>
+                                    <div class="form-check">
+                                        <input class="form-check-input" name="peran[]" type="checkbox" value=<?= $data[
+                                            'ID_PERAN'
+                                        ] ?> id="defaultCheck1">
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            <?= $data['NAMA_PERAN'] ?>
+                                        </label>
+                                    </div>
+                                    <?php endforeach; ?>
                                     <div class="modal-footer">
                                         <button type="button" class="btn closeModal btn-secondary" data-dismiss="modal">
                                             Tutup
@@ -272,6 +300,97 @@ if (isset($_POST['submit'])) {
         })
         e.preventDefault();
     });
+    $(".btn-delete").on("click", function() {
+        let dataid = $(this).attr("data-value")
+        Swal.fire({
+            icon: "warning",
+            position: "top",
+            title: "Apakah anda yakin ?",
+            text: "Data Indikator Akan Terhapus",
+            showConfirmButton: true,
+            showCancelButton: true,
+            reverseButtons: true
+        }).then((result => {
+            if (result.isConfirmed) {
+                let formData = new FormData;
+                formData.append('id', dataid);
+                fetch("hapusIndikator.php", {
+                    method: "POST",
+                    body: formData
+                }).then(response => {
+                    return response.json()
+                    console.log(response)
+                }).then(responseJson => {
+                    Swal.fire({
+                        title: 'Terhapus!',
+                        text: 'Indikator Berhasil Dihapus',
+                        icon: 'success',
+                        position: "top",
+                        showConfirmButton: false
+                    })
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 1000);
+                })
+            } else {
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: 'Indikator Gagal Dihapus',
+                    icon: 'error',
+                    position: "top",
+                    showConfirmButton: false
+                })
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 1000);
+            }
+        }))
+    })
+    $(".btn-add").on("click", function() {
+        let nama = $("#inputindikator").val();
+        let data = []
+        $(':checkbox:checked').each(function(i) {
+            data[i] = $(this).val();
+        })
+        if (data.length == 0) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Peran Indikator Harus Dipilih!',
+                icon: 'error',
+                position: "top",
+                showConfirmButton: true
+            })
+        } else if (nama.length == 0) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Nama Indikator Tidak Boleh Kosong!',
+                icon: 'error',
+                position: "top",
+                showConfirmButton: true
+            })
+        } else {
+            let formData = new FormData;
+            formData.append("idperan", data);
+            formData.append("nama", nama);
+            fetch("buatIndikator.php", {
+                method: "POST",
+                body: formData
+            }).then(response => {
+                return response.json()
+            }).then(responseJson => {
+                Swal.fire({
+                    title: 'Terhapus!',
+                    text: 'Indikator Berhasil Dihapus',
+                    icon: 'success',
+                    position: "top",
+                    showConfirmButton: false
+                })
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 1000);
+            })
+        }
+    })
     </script>
 </body>
 

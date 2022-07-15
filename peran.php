@@ -3,10 +3,6 @@
 require './functions.php';
 
 $datas = query('SELECT * FROM peran');
-
-if (isset($_POST['submit'])) {
-    putDataPeran($_POST);
-}
 ?>
 
 
@@ -25,6 +21,13 @@ if (isset($_POST['submit'])) {
         integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="assets/style/main.css" />
+    <style>
+    .swal2-popup {
+        font-size: 12px !important;
+        font-family: Georgia, serif;
+    }
+    </style>
+    </style>
     <title>Kelola Peran</title>
 </head>
 
@@ -78,9 +81,9 @@ if (isset($_POST['submit'])) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php
-                        $nomer = 1;
-                        foreach ($datas as $data): ?>
+                        <?php if (count($datas) > 0) {
+                            $nomer = 1;
+                            foreach ($datas as $data): ?>
                         <tr>
                             <td class="text-center"><?= $nomer ?> </td>
                             <td class="text-center">
@@ -93,13 +96,21 @@ if (isset($_POST['submit'])) {
                                     ] ?> type="submit">
                                     <i class="fa-solid fa-pencil"></i>
                                 </button>
-                                <button class="btn btn-danger">
+                                <button class="btn btn-danger btn-delete" data-value=<?= $data[
+                                    'ID_PERAN'
+                                ] ?>>
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </td>
                         </tr>
                         <?php $nomer++;endforeach;
-                        ?>
+                        } else {
+                            echo '
+                            <tr>
+                            <td class="text-center" colspan=5>Data Kosong</td>
+                        </tr>
+                        ';
+                        } ?>
                     </tbody>
                 </table>
             </div>
@@ -124,21 +135,19 @@ if (isset($_POST['submit'])) {
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="" method="post">
+                    <div class="form-group">
                         <div class="form-group">
-                            <div class="form-group">
-                                <label for="inputperan">Masukkan Nama Peran</label>
-                                <input type="text" name="nama" class="form-control" id="inputperan"
-                                    aria-describedby="texthelp" />
-                            </div>
+                            <label for="inputperan">Masukkan Nama Peran</label>
+                            <input type="text" name="nama" class="form-control" id="inputperan"
+                                aria-describedby="texthelp" />
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                Tutup
-                            </button>
-                            <button type="submit" name="submit" class="btn btn-primary">Buat Peran</button>
-                        </div>
-                    </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Tutup
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-add">Buat Peran</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -261,6 +270,100 @@ if (isset($_POST['submit'])) {
         })
         e.preventDefault();
     });
+    $(".btn-delete").on("click", function() {
+        let dataid = $(this).attr("data-value")
+        Swal.fire({
+            icon: "warning",
+            position: "top",
+            title: "Apakah anda yakin ?",
+            text: "Data Peran Akan Terhapus",
+            showConfirmButton: true,
+            showCancelButton: true,
+            reverseButtons: true
+        }).then((result => {
+            if (result.isConfirmed) {
+                let formData = new FormData;
+                formData.append('id', dataid);
+                fetch("hapusPeran.php", {
+                    method: "POST",
+                    body: formData
+                }).then(response => {
+                    return response.json()
+                    console.log(response)
+                }).then(responseJson => {
+                    Swal.fire({
+                        title: 'Terhapus!',
+                        text: 'Peran Berhasil Dihapus',
+                        icon: 'success',
+                        position: "top",
+                        showConfirmButton: false
+                    })
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 1000);
+                })
+            } else {
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: 'Peran Gagal Dihapus',
+                    icon: 'error',
+                    position: "top",
+                    showConfirmButton: false
+                })
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 1000);
+            }
+        }))
+    })
+    $(".btn-add").on("click", function() {
+        let peran = document.getElementsByTagName("td")[1].innerText
+        let namaPeran = peran.toLowerCase();
+        let nama = $("#inputperan").val().toLowerCase();
+        if (nama.length == 0) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Peran Tidak Boleh Kosong!',
+                icon: 'error',
+                position: "top",
+                showConfirmButton: true
+            })
+        } else {
+            let nama = $("#inputperan").val();
+            let formData = new FormData;
+            formData.append("nama", nama);
+            fetch("buatperan.php", {
+                method: "POST",
+                body: formData
+            }).then(response => {
+                return response.json()
+            }).then(responseJson => {
+                if (responseJson == "SUKSES") {
+                    Swal.fire({
+                        title: 'Tersimpan!',
+                        text: 'Peran Berhasil Dibuat',
+                        icon: 'success',
+                        position: "top",
+                        showConfirmButton: false
+                    })
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 1000);
+                } else {
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: 'Peran Sudah Tersedia',
+                        icon: 'error',
+                        position: "top",
+                        showConfirmButton: false
+                    })
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 1000);
+                }
+            })
+        }
+    })
     </script>
 </body>
 
