@@ -153,6 +153,16 @@ function putDataSekolah($data)
         return mysqli_affected_rows($conn);
     }
 }
+function putDataJawaban($data)
+{
+    global $conn;
+
+    $nama = htmlspecialchars($data['nama']);
+    $idperan = $data['idPeran'];
+    $idSekolah = $data['idSekolah'];
+    $idPertanyaan = explode(',', $data['idPertanyaan']);
+    $jawaban = explode(',', $data['Jawaban']);
+}
 
 function updateDataSekolah($data)
 {

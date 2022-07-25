@@ -140,7 +140,7 @@ require './functions.php'; ?>
                         </div>
                         <div class="form-group">
                             <label for="exampleInputEmail1">Pilih Sekolah</label><br>
-                            <select class="custom-select">
+                            <select class="custom-select" id="selectSekolah">
                                 <option selected value="0">----- Silahkan Memilih Sekolah -----</option>
                                 <?php
                                 $sekolah = query('SELECT * FROM sekolah');
@@ -168,7 +168,8 @@ require './functions.php'; ?>
                         </div>
                         <div id="data-pertanyaan"></div>
                         <div class="text-center">
-                            <button class="btn btn-primary mt-3" style="width: 50%; min-height:35px;">SUBMIT</button>
+                            <button class="btn btn-primary mt-3" style="display:none; width: 50%; min-height:35px;"
+                                id="submitData" type="button">SUBMIT</button>
                         </div>
                     </form>
                 </div>
@@ -191,8 +192,11 @@ require './functions.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous">
     </script>
+    <script src="assets/idb/lib/idb.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+    // open idb
+
     $("#peranSelect").on("change", function() {
         $("#data-pertanyaan").html('')
         let valueSelect = $("#peranSelect").find(":selected").val();
@@ -213,76 +217,81 @@ require './functions.php'; ?>
                 let arrayId = data.map(data => `
                 <div class="pertanyaan">
                             <span>Pertanyaan ${ index++}</span>
+                            <div class="text-center loading">
+                            <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                            </div>
+                            </div>
                             <div class="row">
-                                <div class="col col-6 kualitas">
-                                    <p id="${idPertanyaan++}"></p>
+                                <div class="col col-6 kualitas" id="pertanyaanKualitas" style="display:none;">
+                                    <p id="${idPertanyaan++}" class="pertanyaanKualitas"></p>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="jawabanKualitas"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index++}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="jawabanKualitas"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index++}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label"id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="jawabanKualitas"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index++}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="jawabanKualitas"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index++}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="jawabanKualitas"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index++}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                 </div>
-                                <div class="col col-6 kepentingan">
-                                    <p id="${idPertanyaan++}"></p>
+                                <div class="col col-6 kepentingan" style="display:none;">
+                                    <p id="${idPertanyaan++}" class="pertanyaanKepentingan"></p>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="jawabanKepentingan"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index++}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="jawabanKepentingan"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index++}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="jawabanKepentingan"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index++}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="jawabanKepentingan"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index++}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="jawabanKepentingan"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index++}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
@@ -294,37 +303,77 @@ require './functions.php'; ?>
                 `)
                 $("#data-pertanyaan").html(arrayId);
             })
-            fetch("datapertanyaan.php", {
-                method: "POST",
-                body: formData
-            }).then(response => {
-                return response.json()
-            }).then(responseJson => {
-                let i = 1;
-                let formData1 = new FormData()
-                let data = responseJson.map(data => {
-                    let pertanyaan = $(`#${i++}`)
-                    pertanyaan.html(data.NAMA_PERTANYAAN)
-                    pertanyaan.attr("data-id", data.ID_PERTANYAAN)
+            setTimeout(() => {
+                $(".loading").remove()
+                $(".kualitas,.kepentingan").css({
+                    display: "block"
                 })
-                formData1.append("id", valueSelect);
-                fetch("dataketentuanjawaban.php", {
+                $("#submitData").css({
+                    display: "inline-block"
+                })
+                fetch("datapertanyaan.php", {
                     method: "POST",
-                    body: formData1
+                    body: formData
                 }).then(response => {
                     return response.json()
                 }).then(responseJson => {
+                    console.log(responseJson);
                     let i = 1;
-                    let val = 1;
+                    let formData1 = new FormData()
                     let data = responseJson.map(data => {
-                        let ketentuanJawaban = $(`#label${i++}`)
-                        ketentuanJawaban.html(data.KETENTUAN_JAWABAN)
-                        let jawabanValue = $(`#radio${val++}`)
-                        jawabanValue.attr("value", data.NILAI_JAWABAN)
+                        let pertanyaan = $(`#${i++}`)
+                        pertanyaan.html(data.NAMA_PERTANYAAN)
+                        pertanyaan.attr("data-id", data.ID_PERTANYAAN)
+                    })
+                    formData1.append("id", valueSelect);
+                    fetch("dataketentuanjawaban.php", {
+                        method: "POST",
+                        body: formData1
+                    }).then(response => {
+                        return response.json()
+                    }).then(responseJson => {
+                        console.log(responseJson);
+                        let i = 1;
+                        let val = 1;
+                        let data = responseJson.map(data => {
+                            let ketentuanJawaban = $(`#label${i++}`)
+                            ketentuanJawaban.html(data.KETENTUAN_JAWABAN)
+                            let jawabanValue = $(`#radio${val++}`)
+                            jawabanValue.attr("value", data.NILAI_JAWABAN)
+                        })
                     })
                 })
-            })
+            }, 1000);
         }
+    })
+    $("#submitData").on("click", function() {
+        let nama = $("#namaInput").val()
+        let sekolah = $("#selectSekolah").val()
+        let peran = $("#peranSelect").val()
+        let arrayJawaban = []
+        let arrayIdPertanyaan = []
+        $(':radio:checked').each(function() {
+            let data = $(this).val()
+            arrayJawaban.push(data)
+        });
+        $(".pertanyaanKualitas,.pertanyaanKepentingan").each(function() {
+            let data = $(this).attr("data-id")
+            arrayIdPertanyaan.push(data)
+        })
+        let formData = new FormData();
+        formData.append("nama", nama)
+        formData.append("idSekolah", sekolah)
+        formData.append("idPeran", peran)
+        formData.append("idPertanyaan", arrayIdPertanyaan)
+        formData.append("Jawaban", arrayJawaban)
+        fetch("buatjawaban.php", {
+            method: "POST",
+            body: formData
+        }).then(response => {
+            return response.json()
+        }).then(responseJson => {
+
+        })
     })
     </script>
 </body>
