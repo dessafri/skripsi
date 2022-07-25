@@ -5,9 +5,8 @@ $datas = query('SELECT * FROM indikator');
 $dataperan = query('SELECT * FROM peran');
 
 $peran = query(
-    'SELECT DISTINCT ind.ID_INDIKATOR,p.NAMA_PERAN from (indikator ind left JOIN kriteria_peran kp on ind.ID_INDIKATOR = kp.ID_INDIKATOR) LEFT JOIN peran p on kp.ID_PERAN = p.ID_PERAN'
+    'SELECT ID_INDIKATOR,NAMA_INDIKATOR, GROUP_CONCAT(NAMA_PERAN) as NAMA_PERAN FROM ( SELECT indikator.ID_INDIKATOR, indikator.NAMA_INDIKATOR,peran.NAMA_PERAN FROM (indikator LEFT JOIN kriteria_peran ON indikator.ID_INDIKATOR = kriteria_peran.ID_INDIKATOR) LEFT JOIN peran ON kriteria_peran.ID_PERAN = peran.ID_PERAN ) AS A GROUP BY ID_INDIKATOR'
 );
-var_dump($peran);
 ?>
 
 <!DOCTYPE html>
@@ -86,27 +85,24 @@ var_dump($peran);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (count($datas) > 0) {
+                        <?php if (count($peran) > 0) {
                             $nomer = 1;
-                            $namaperan = [];
-                            foreach ($datas as $data): ?>
-                        <?php array_push($namaperan, $data['ID_INDIKATOR']); ?>
-                        <?php var_dump([$data['ID_INDIKATOR']]); ?>
+                            foreach ($peran as $peran): ?>
                         <tr>
                             <td class="text-center"><?= $nomer ?></td>
                             <td class="text-center">
-                                <?= $data['NAMA_INDIKATOR'] ?>
+                                <?= $peran['NAMA_INDIKATOR'] ?>
                             </td>
                             <td class="text-center">
-                                <?= $data['ID_INDIKATOR'] ?>
+                                <?= $peran['NAMA_PERAN'] ?>
                             </td>
                             <td class="text-center">
-                                <button class="btn btn-primary btn-edit" data-value=<?= $data[
+                                <button class="btn btn-primary btn-edit" data-value=<?= $peran[
                                     'ID_INDIKATOR'
                                 ] ?> data-toggle="modal" data-target="#editindikator" type="button">
                                     <i class="fa-solid fa-pencil"></i>
                                 </button>
-                                <button class="btn btn-danger btn-delete" data-value=<?= $data[
+                                <button class="btn btn-danger btn-delete" data-value=<?= $peran[
                                     'ID_INDIKATOR'
                                 ] ?>>
                                     <i class="fa-solid fa-trash"></i>
@@ -155,7 +151,7 @@ var_dump($peran);
                     <span>Pilih Peran Untuk Indikator</span>
                     <?php foreach ($dataperan as $data): ?>
                     <div class="form-check">
-                        <input class="form-check-input" name="peran[]" type="checkbox" value=<?= $data[
+                        <input class="form-check-input" name="peran" type="checkbox" value=<?= $data[
                             'ID_PERAN'
                         ] ?> id="defaultCheck1">
                         <label class="form-check-label" for="defaultCheck1">
@@ -187,8 +183,11 @@ var_dump($peran);
     </script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+    let arrayCheck = [];
+    let idindikator;
     $(".btn-edit").on("click", function(e) {
         let dataid = $(this).attr("data-value");
+        let arrayCheck = [];
         let formData = new FormData();
         formData.append("id", dataid);
         fetch('dataperindikator.php', {
@@ -198,7 +197,10 @@ var_dump($peran);
             return response.json();
         }).then(responseJson => {
             let data = responseJson;
-            let items = data.map(data => `
+            $("input:checkbox").prop('checked', false);
+
+            function mapData() {
+                let items = `
             <div class="modal" id="editindikator" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -214,19 +216,19 @@ var_dump($peran);
                                     <div class="form-group">
                                         <div class="form-group">
                                             <label for="nama_indikator">Nama Kategori</label>
-                                            <input type="text" name="nama" value="${data.NAMA_INDIKATOR}" class="form-control" id="nama_indikator"
+                                            <input type="text" name="nama" value="${data[0].NAMA_INDIKATOR}" class="form-control" id="nama_indikator"
                                                 aria-describedby="texthelp" />
-                                            <input type="hidden" name="id" value="${data.ID_INDIKATOR}" class="form-control" id="id_indikator"
+                                            <input type="hidden" name="id" value="${data[0].ID_INDIKATOR}" class="form-control" id="id_indikator"
                                                 aria-describedby="texthelp" />
                                         </div>
                                     </div>
                                     <span>Pilih Peran Untuk Indikator</span>
                                     <?php foreach ($dataperan as $data): ?>
                                     <div class="form-check">
-                                        <input class="form-check-input" name="peran[]" type="checkbox" value=<?= $data[
+                                        <input class="form-check-input selectbox" name="peranedit" type="checkbox" value=<?= $data[
                                             'ID_PERAN'
-                                        ] ?> id="defaultCheck1">
-                                        <label class="form-check-label" for="defaultCheck1">
+                                        ] ?>>
+                                        <label class="form-check-label">
                                             <?= $data['NAMA_PERAN'] ?>
                                         </label>
                                     </div>
@@ -241,9 +243,21 @@ var_dump($peran);
                             </div>
                         </div>
                     </div>
-                </div>
-            `);
-            $("#edit").html(items);
+                </div>                
+                `
+                data.map(data => {
+
+                    arrayCheck.push(data.ID_PERAN);
+                })
+                $("#edit").html(items);
+            }
+            async function setSelect() {
+                await mapData()
+                $.each(arrayCheck, function(i, val) {
+                    $("input[value='" + val + "']").prop('checked', true);
+                })
+            }
+            setSelect();
             let namaold = $("#nama_indikator").val();
             $("#editindikator").modal("show");
             $(".closeModal").on("click", function() {
@@ -253,6 +267,16 @@ var_dump($peran);
             $("#btn1").on("click", function() {
                 let nama = $("#nama_indikator").val();
                 let id = $("#id_indikator").val();
+                let dataSelectBox = []
+                $('.selectbox:checked').each(function(i) {
+                    dataSelectBox[i] = $(this).val()
+                })
+                if (dataSelectBox < arrayCheck) {
+                    console.log("kurang")
+                } else {
+                    console.log("tambah")
+                }
+
                 Swal.fire({
                     title: 'Update Indikator',
                     text: 'Apakah Yakin Mengganti ' + namaold + "\n Menjadi " +
@@ -267,6 +291,7 @@ var_dump($peran);
                         let formData1 = new FormData();
                         formData1.append("id", dataid);
                         formData1.append("nama", nama);
+                        formData1.append("idPeran", dataSelectBox);
                         fetch('editindikator.php', {
                             method: "POST",
                             body: formData1
@@ -302,6 +327,7 @@ var_dump($peran);
     });
     $(".btn-delete").on("click", function() {
         let dataid = $(this).attr("data-value")
+        console.log(dataid);
         Swal.fire({
             icon: "warning",
             position: "top",

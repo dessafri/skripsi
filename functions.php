@@ -2,6 +2,8 @@
 
 // koneksi
 
+use LDAP\Result;
+
 $conn = mysqli_connect('localhost', 'root', '', 'sipeku');
 
 if (!$conn) {
@@ -36,6 +38,10 @@ function putDataIndikator($data)
         mysqli_query($conn, $query);
     }
     $index++;
+    // foreach ($idperan as $idperan) {
+
+    // }
+    // $index++;
 
     // return mysqli_affected_rows($conn);
 }
@@ -234,7 +240,16 @@ function updateDataIndikator($data)
                         NAMA_INDIKATOR = '$nama'
                         WHERE ID_INDIKATOR='$id'";
     mysqli_query($conn, $query);
-    return mysqli_affected_rows($conn);
+    mysqli_query(
+        $conn,
+        "DELETE FROM kriteria_peran WHERE kriteria_peran.ID_INDIKATOR = '$id'"
+    );
+    $idperan = explode(',', $data['idPeran']);
+    foreach ($idperan as $idperan) {
+        $query = "INSERT INTO kriteria_peran VALUES ('','$id','$idperan')";
+        mysqli_query($conn, $query);
+    }
+    // return mysqli_affected_rows($conn);
 }
 function deleteSekolah($data)
 {
@@ -248,6 +263,7 @@ function deletePeran($data)
     global $conn;
 
     $id = $data['id'];
+    mysqli_query($conn, "DELETE FROM kriteria_peran WHERE ID_PERAN='$id'");
     mysqli_query($conn, "DELETE FROM peran WHERE peran.ID_PERAN='$id'");
 }
 function deleteKategori($data)
@@ -255,20 +271,16 @@ function deleteKategori($data)
     global $conn;
 
     $id = $data['id'];
-    mysqli_query(
-        $conn,
-        "DELETE FROM kategori WHERE kategori.ID_KATEGORI='$id'"
-    );
+    $query1 = "DELETE FROM kategori WHERE kategori.ID_KATEGORI='$id'";
+    mysqli_query($conn, $query1);
 }
 function deleteIndikator($data)
 {
     global $conn;
 
     $id = $data['id'];
-    mysqli_query(
-        $conn,
-        "DELETE FROM indikator WHERE indikator.ID_INDIKATOR='$id'"
-    );
+    mysqli_query($conn, "DELETE FROM kriteria_peran WHERE ID_INDIKATOR='$id'");
+    mysqli_query($conn, "DELETE FROM indikator WHERE ID_INDIKATOR='$id'");
 }
 function deletePertanyaan($data)
 {

@@ -722,15 +722,21 @@ $kategori = query('SELECT * FROM kategori');
                     let indikator = $("#indikatorselectEditKualitas").val()
                     let pertanyaan = $("#inputkualitasEdit").val()
                     let ketentuan5 = $("#inputSangatBaikKualitasEdit").val();
-                    let ketentuan4 = $("#inputSangatBaikKualitasEdit").val();
-                    let ketentuan3 = $("#inputSangatBaikKualitasEdit").val();
-                    let ketentuan2 = $("#inputSangatBaikKualitasEdit").val();
-                    let ketentuan1 = $("#inputSangatBaikKualitasEdit").val();
+                    let ketentuan4 = $("#inputBaikKualitasEdit").val();
+                    let ketentuan3 = $("#inputCukupBaikKualitasEdit").val();
+                    let ketentuan2 = $("#inputTidakBaikKualitasEdit").val();
+                    let ketentuan1 = $("#inputSangatTidakBaikKualitasEdit").val();
                     let id5 = $("#inputSangatBaikKualitasEdit").attr("data-id");
-                    let id4 = $("#inputSangatBaikKualitasEdit").attr("data-id");
-                    let id3 = $("#inputSangatBaikKualitasEdit").attr("data-id");
-                    let id2 = $("#inputSangatBaikKualitasEdit").attr("data-id");
-                    let id1 = $("#inputSangatBaikKualitasEdit").attr("data-id");
+                    let id4 = $("#inputBaikKualitasEdit").attr("data-id");
+                    let id3 = $("#inputCukupBaikKualitasEdit").attr("data-id");
+                    let id2 = $("#inputTidakBaikKualitasEdit").attr("data-id");
+                    let id1 = $("#inputSangatTidakBaikKualitasEdit").attr("data-id");
+
+                    console.log(id5);
+                    console.log(id4);
+                    console.log(id3);
+                    console.log(id2);
+                    console.log(id1);
 
                     if (indikator == 0 || pertanyaan.length == 0 || ketentuan1 == 0 ||
                         ketentuan2 == 0 || ketentuan3 == 0 || ketentuan4 == 0 || ketentuan5 == 0
