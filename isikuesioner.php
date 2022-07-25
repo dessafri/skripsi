@@ -1,6 +1,5 @@
 <?php
 require './functions.php'; ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -195,8 +194,7 @@ require './functions.php'; ?>
     <script src="assets/idb/lib/idb.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-    // open idb
-
+    let panjangDataPertanyaan = 0;
     $("#peranSelect").on("change", function() {
         $("#data-pertanyaan").html('')
         let valueSelect = $("#peranSelect").find(":selected").val();
@@ -211,12 +209,13 @@ require './functions.php'; ?>
             }).then(responseJson => {
                 let data = responseJson
                 let index = 1;
+                let pertanyaan = 1;
                 let idPertanyaan = 1;
                 let idKetentuanJawaban = 1;
                 let idRadio = 1;
                 let arrayId = data.map(data => `
                 <div class="pertanyaan">
-                            <span>Pertanyaan ${ index++}</span>
+                            <span>Pertanyaan ${ pertanyaan++}</span>
                             <div class="text-center loading">
                             <div class="spinner-border text-primary" role="status">
                             <span class="sr-only">Loading...</span>
@@ -226,34 +225,34 @@ require './functions.php'; ?>
                                 <div class="col col-6 kualitas" id="pertanyaanKualitas" style="display:none;">
                                     <p id="${idPertanyaan++}" class="pertanyaanKualitas"></p>
                                     <div class="form-check">
-                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index++}"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index++}"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label"id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index++}"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index++}"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index++}"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKualitas${index}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
@@ -263,35 +262,35 @@ require './functions.php'; ?>
                                 <div class="col col-6 kepentingan" style="display:none;">
                                     <p id="${idPertanyaan++}" class="pertanyaanKepentingan"></p>
                                     <div class="form-check">
-                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index++}"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index++}"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index++}"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index++}"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index++}"
+                                        <input class="form-check-input" idper="${data.ID_PERTANYAAN}" type="radio" name="jawabanKepentingan${index}"
                                             id="radio${idRadio++}">
                                         <label class="form-check-label" id="label${idKetentuanJawaban++}">
                                             
@@ -300,8 +299,10 @@ require './functions.php'; ?>
                                 </div>
                             </div>
                         </div>
+                        <div id="${index++}" style="display:none;"></div>
                 `)
                 $("#data-pertanyaan").html(arrayId);
+                panjangDataPertanyaan = idPertanyaan - 1;
             })
             setTimeout(() => {
                 $(".loading").remove()
@@ -317,7 +318,6 @@ require './functions.php'; ?>
                 }).then(response => {
                     return response.json()
                 }).then(responseJson => {
-                    console.log(responseJson);
                     let i = 1;
                     let formData1 = new FormData()
                     let data = responseJson.map(data => {
@@ -332,7 +332,6 @@ require './functions.php'; ?>
                     }).then(response => {
                         return response.json()
                     }).then(responseJson => {
-                        console.log(responseJson);
                         let i = 1;
                         let val = 1;
                         let data = responseJson.map(data => {
@@ -360,20 +359,40 @@ require './functions.php'; ?>
             let data = $(this).attr("data-id")
             arrayIdPertanyaan.push(data)
         })
-        let formData = new FormData();
-        formData.append("nama", nama)
-        formData.append("idSekolah", sekolah)
-        formData.append("idPeran", peran)
-        formData.append("idPertanyaan", arrayIdPertanyaan)
-        formData.append("Jawaban", arrayJawaban)
-        fetch("buatjawaban.php", {
-            method: "POST",
-            body: formData
-        }).then(response => {
-            return response.json()
-        }).then(responseJson => {
-
-        })
+        let panjangJawaban = arrayJawaban.length
+        if (nama.length == 0 || nama === " " || sekolah == 0 || panjangJawaban != panjangDataPertanyaan) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Harap Mengisi Semua Form',
+                icon: 'error',
+                position: "top",
+                showConfirmButton: true
+            })
+        } else {
+            let formData = new FormData();
+            formData.append("nama", nama)
+            formData.append("idSekolah", sekolah)
+            formData.append("idPeran", peran)
+            formData.append("idPertanyaan", arrayIdPertanyaan)
+            formData.append("Jawaban", arrayJawaban)
+            fetch("buatjawaban.php", {
+                method: "POST",
+                body: formData
+            }).then(response => {
+                return response.json()
+            }).then(responseJson => {
+                Swal.fire({
+                    title: 'Sukses!',
+                    text: 'Terimakasih Sudah Mengisi Kuesioner',
+                    icon: 'success',
+                    position: "top",
+                    showConfirmButton: false
+                })
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 1500);
+            })
+        }
     })
     </script>
 </body>

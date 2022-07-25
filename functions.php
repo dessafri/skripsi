@@ -162,6 +162,20 @@ function putDataJawaban($data)
     $idSekolah = $data['idSekolah'];
     $idPertanyaan = explode(',', $data['idPertanyaan']);
     $jawaban = explode(',', $data['Jawaban']);
+    foreach ($idPertanyaan as $index => $pertanyaan) {
+        $valueJawaban = $jawaban[$index];
+        $query = "INSERT INTO jawaban VALUES ('','$nama','$pertanyaan','$idSekolah','$idperan','$valueJawaban')";
+        mysqli_query($conn, $query);
+    }
+    // array_map(
+    //     function ($idPertanyaan, $jawaban) {
+    // $query = "INSERT INTO jawaban VALUES ('','$nama','$idPertanyaan','$idSekolah','$idperan','$jawaban')";
+    // mysqli_query($conn, $query);
+    //     },
+    //     $idPertanyaan,
+    //     $jawaban
+    // );
+    return mysqli_affected_rows($conn);
 }
 
 function updateDataSekolah($data)
