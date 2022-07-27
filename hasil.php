@@ -6,7 +6,7 @@ $dataIndikator = query(
     'SELECT DISTINCT pertanyaan.ID_INDIKATOR FROM pertanyaan LEFT JOIN jawaban ON jawaban.ID_PERTANYAAN = pertanyaan.ID_PERTANYAAN'
 );
 $dataPeran = query('SELECT DISTINCT JENIS_PERAN FROM jawaban');
-// perhitungan awal mencari nilai rata - rata indikator per peran
+// perhitungan awal mencari nilai rata - rata indikator per peran dari total jawaban baik indikator kualitas / kepentingan
 $sqlRataKualitas =
     'INSERT INTO rata_rata (ID_INDIKATOR,ID_SEKOLAH,ID_PERAN,RATA,KATEGORI) VALUES ';
 $sqlRataKepentingan =
@@ -57,7 +57,8 @@ $sqlRataKepentingan = rtrim($sqlRataKepentingan, ', ');
 mysqli_query($conn, $sqlRataKualitas);
 mysqli_query($conn, $sqlRataKepentingan);
 
-// menggabungkan nilai rata-rata indikator
+// menggabungkan nilai rata-rata indikator baik kualitas / kepentingan
+// rumusnya rata-rata tiap peran di jumlah kemudian dibagi 2
 $sqlKualitas =
     'INSERT INTO nilai_rata_indikator (ID_INDIKATOR,NILAI_RATA_RATA,ID_SEKOLAH,KATEGORI) VALUES ';
 $sqlKepentingan =
@@ -141,6 +142,7 @@ mysqli_query($conn, $sqlKualitas);
 mysqli_query($conn, $sqlKepentingan);
 
 // menghitung kesesuaian per indikator
+// rumus = rata-rata kualitas / rata-rata kepentingan x 100
 $sqlKesesuaian =
     'INSERT INTO tingkat_kesesuaian_indikator (ID_INDIKATOR,ID_SEKOLAH,NILAI) VALUES ';
 foreach ($dataSekolah as $a) {
@@ -186,6 +188,7 @@ $sqlKesesuaian = rtrim($sqlKesesuaian, ', ');
 mysqli_query($conn, $sqlKesesuaian);
 
 // menghitung Kesesuaian total
+// rumus = total rata - rata indikator kualitas / total rata - rata indikator kepentingan x 100
 $sqlKesesuaianTotal =
     'INSERT INTO `tingkat_kesesuaian_total`(`ID_SEKOLAH`, `NILAI`) VALUES ';
 foreach ($dataSekolah as $a) {
@@ -223,6 +226,14 @@ $sqlKesesuaianTotal = rtrim($sqlKesesuaianTotal, ', ');
 mysqli_query($conn, $sqlKesesuaianTotal);
 
 // penentuan kuadran tiap indikator
+//  1. menentukan titik potong X untuk kualitas dan Y untuk kepentingan dengan rumus total rata - rata masing masing kategori / banyak indikator
+// 2. Penentuan kuadran tiap indikator dengan membandingkan rata - rata kualitas dengan X dan rata - rata kepentingan dengan Y
+// ketentuan kuadran :
+// *. jika rata - rata kualitas lebih kecil dari X dan rata - rata kepentingan lebih besar dari Y maka masuk kuadran PRIORITAS TINGGI
+// *. jika rata - rata kualitas lebih kecil dari X dan rata - rata kepentingan lebih kecil dari Y maka masuk kuadran PRIORITAS RENDAH
+// *. jika rata - rata kualitas lebih besar dari X dan rata - rata kepentingan lebih besar dari Y maka masuk kuadran PERTAHANKAN PRESTASI
+// *. jika rata - rata kualitas lebih besar dari X dan rata - rata kepentingan lebih kecil dari Y maka masuk kuadran BERLEBIHAN
+
 $sqlPenentuanKuadran =
     'INSERT INTO kuadran_indikator (ID_SEKOLAH,ID_INDIKATOR,KUADRAN) VALUES ';
 foreach ($dataSekolah as $sekolah) {
