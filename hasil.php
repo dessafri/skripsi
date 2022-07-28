@@ -6,6 +6,7 @@ $dataIndikator = query(
     'SELECT DISTINCT pertanyaan.ID_INDIKATOR FROM pertanyaan LEFT JOIN jawaban ON jawaban.ID_PERTANYAAN = pertanyaan.ID_PERTANYAAN'
 );
 $dataPeran = query('SELECT DISTINCT JENIS_PERAN FROM jawaban');
+// IPA
 // perhitungan awal mencari nilai rata - rata indikator per peran dari total jawaban baik indikator kualitas / kepentingan
 $sqlRataKualitas =
     'INSERT INTO rata_rata (ID_INDIKATOR,ID_SEKOLAH,ID_PERAN,RATA,KATEGORI) VALUES ';
@@ -54,8 +55,8 @@ foreach ($dataSekolah as $data) {
 }
 $sqlRataKualitas = rtrim($sqlRataKualitas, ', ');
 $sqlRataKepentingan = rtrim($sqlRataKepentingan, ', ');
-mysqli_query($conn, $sqlRataKualitas);
-mysqli_query($conn, $sqlRataKepentingan);
+// mysqli_query($conn, $sqlRataKualitas);
+// mysqli_query($conn, $sqlRataKepentingan);
 
 // menggabungkan nilai rata-rata indikator baik kualitas / kepentingan
 // rumusnya rata-rata tiap peran di jumlah kemudian dibagi 2
@@ -138,8 +139,8 @@ foreach ($dataSekolah as $a) {
 $sqlKualitas = rtrim($sqlKualitas, ', ');
 $sqlKepentingan = rtrim($sqlKepentingan, ', ');
 
-mysqli_query($conn, $sqlKualitas);
-mysqli_query($conn, $sqlKepentingan);
+// mysqli_query($conn, $sqlKualitas);
+// mysqli_query($conn, $sqlKepentingan);
 
 // menghitung kesesuaian per indikator
 // rumus = rata-rata kualitas / rata-rata kepentingan x 100
@@ -185,7 +186,7 @@ foreach ($dataSekolah as $a) {
 }
 $sqlKesesuaian = rtrim($sqlKesesuaian, ', ');
 
-mysqli_query($conn, $sqlKesesuaian);
+// mysqli_query($conn, $sqlKesesuaian);
 
 // menghitung Kesesuaian total
 // rumus = total rata - rata indikator kualitas / total rata - rata indikator kepentingan x 100
@@ -223,7 +224,7 @@ foreach ($dataSekolah as $a) {
 }
 $sqlKesesuaianTotal = rtrim($sqlKesesuaianTotal, ', ');
 
-mysqli_query($conn, $sqlKesesuaianTotal);
+// mysqli_query($conn, $sqlKesesuaianTotal);
 
 // penentuan kuadran tiap indikator
 //  1. menentukan titik potong X untuk kualitas dan Y untuk kepentingan dengan rumus total rata - rata masing masing kategori / banyak indikator
@@ -299,7 +300,121 @@ foreach ($dataSekolah as $sekolah) {
 }
 $sqlPenentuanKuadran = rtrim($sqlPenentuanKuadran, ', ');
 
-mysqli_query($conn, $sqlPenentuanKuadran);
+// mysqli_query($conn, $sqlPenentuanKuadran);
+
+// SAW
+// normalisasi matrix
+$sqlNormalisasi =
+    'INSERT INTO normalisasi_matrix (ID_INDIKATOR,ID_SEKOLAH,NILAI) VALUES ';
+foreach ($dataSekolah as $a) {
+    $idSekolah = $a['ID_SEKOLAH'];
+    foreach ($dataIndikator as $a) {
+        $idIndikator = $a['ID_INDIKATOR'];
+        $atributIndikator;
+        $valueIndikator;
+        $normalisasi;
+        $resultAtribut = mysqli_fetch_assoc(
+            mysqli_query(
+                $conn,
+                "SELECT indikator.ATRIBUT FROM indikator WHERE indikator.ID_INDIKATOR = $idIndikator "
+            )
+        );
+        $atributIndikator = $resultAtribut['ATRIBUT'];
+        if ($atributIndikator == 'BENEFIT') {
+            $valueMax = mysqli_fetch_assoc(
+                mysqli_query(
+                    $conn,
+                    "SELECT MAX(NILAI_RATA_RATA) AS MAX FROM nilai_rata_indikator WHERE nilai_rata_indikator.ID_INDIKATOR = $idIndikator AND KATEGORI = 'KUALITAS' "
+                )
+            );
+            $valueIndikator = $valueMax['MAX'];
+        } else {
+            $valueMin = mysqli_fetch_assoc(
+                mysqli_query(
+                    $conn,
+                    "SELECT MIN(NILAI_RATA_RATA) AS MIN FROM nilai_rata_indikator WHERE nilai_rata_indikator.ID_INDIKATOR = $idIndikator AND KATEGORI = 'KUALITAS' "
+                )
+            );
+            $valueIndikator = $valueMin['MIN'];
+        }
+        $resultRataIndikator = mysqli_fetch_assoc(
+            mysqli_query(
+                $conn,
+                "SELECT NILAI_RATA_RATA FROM nilai_rata_indikator WHERE ID_INDIKATOR = $idIndikator AND ID_SEKOLAH = '$idSekolah' AND KATEGORI = 'KUALITAS' "
+            )
+        );
+        $normalisasi =
+            (float) $resultRataIndikator['NILAI_RATA_RATA'] / $valueIndikator;
+        $sqlNormalisasi .=
+            "('" .
+            $idIndikator .
+            "','" .
+            $idSekolah .
+            "','" .
+            round($normalisasi, 2) .
+            "'),";
+    }
+}
+$sqlNormalisasi = rtrim($sqlNormalisasi, ', ');
+// mysqli_query($conn, $sqlNormalisasi);
+
+// mencari nilai preferensi
+$sqlPreferensi =
+    'INSERT INTO nilai_preferensi (ID_INDIKATOR,ID_SEKOLAH,NILAI) VALUES ';
+foreach ($dataSekolah as $a) {
+    $idSekolah = $a['ID_SEKOLAH'];
+    foreach ($dataIndikator as $a) {
+        $idIndikator = $a['ID_INDIKATOR'];
+        $bobotIndikator;
+        $nilaiPreferensi;
+        $resultAtribut = mysqli_fetch_assoc(
+            mysqli_query(
+                $conn,
+                "SELECT indikator.BOBOT FROM indikator WHERE indikator.ID_INDIKATOR = $idIndikator "
+            )
+        );
+        $bobotIndikator = (float) $resultAtribut['BOBOT'];
+        $resultNormalisasi = mysqli_fetch_assoc(
+            mysqli_query(
+                $conn,
+                "SELECT NILAI FROM normalisasi_matrix WHERE ID_INDIKATOR = $idIndikator AND ID_SEKOLAH = $idSekolah "
+            )
+        );
+        $nilaiPreferensi =
+            (float) $resultNormalisasi['NILAI'] * $bobotIndikator;
+        $sqlPreferensi .=
+            "('" .
+            $idIndikator .
+            "','" .
+            $idSekolah .
+            "','" .
+            round($nilaiPreferensi, 2) .
+            "'),";
+    }
+}
+$sqlPreferensi = rtrim($sqlPreferensi, ', ');
+
+// mysqli_query($conn, $sqlPreferensi);
+
+// Perangkingan Sekolah
+$sqlPerangkingan =
+    'INSERT INTO perangkingan_sekolah (ID_SEKOLAH,NILAI) VALUES ';
+foreach ($dataSekolah as $a) {
+    $idSekolah = $a['ID_SEKOLAH'];
+    $jmlTotalPreferensi;
+    $totalPreferensi = mysqli_fetch_assoc(
+        mysqli_query(
+            $conn,
+            "SELECT SUM(NILAI) AS TOTAL FROM normalisasi_matrix WHERE ID_SEKOLAH = $idSekolah "
+        )
+    );
+    $jmlTotalPreferensi = $totalPreferensi['TOTAL'];
+    $sqlPerangkingan .=
+        "('" . $idSekolah . "','" . round($jmlTotalPreferensi, 2) . "'),";
+}
+$sqlPerangkingan = rtrim($sqlPerangkingan, ', ');
+
+// mysqli_query($conn, $sqlPerangkingan);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -316,67 +431,14 @@ mysqli_query($conn, $sqlPenentuanKuadran);
         integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="assets/style/main.css" />
-    <title>Kelola HASIL</title>
+    <title>KELOLA HASIL</title>
 </head>
 
 <body>
     <div id="wrapper">
         <div class="sidebar">
-            <ul class="navbar-nav" id="accordionSidebar">
-                <a href="index.html" class="d-flex align-items-center justify-content-center">
-                    <div class="container sidebar-title mt-2 mb-5 text-left">
-                        <span>SIPEKU</span>
-                    </div>
-                </a>
-                <li class="nav-item">
-                    <a class="nav-link sidebar-text" href="index.html">
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <hr class="sidebar-bagi" />
-                <li class="nav-item">
-                    <a class="nav-link sidebar-text" href="kuesioner.html">
-                        <span>Kelola Kuesioner</span>
-                    </a>
-                </li>
-                <hr class="sidebar-bagi" />
-                <li class="nav-item">
-                    <a class="nav-link sidebar-text" href="pertanyaan.html">
-                        <span>Kelola Pertanyaan</span>
-                    </a>
-                </li>
-                <hr class="sidebar-bagi" />
-                <li class="nav-item">
-                    <a class="nav-link sidebar-text" href="indikator.html">
-                        <span>Kelola Indikator</span>
-                    </a>
-                </li>
-                <hr class="sidebar-bagi" />
-                <li class="nav-item active">
-                    <a class="nav-link sidebar-text" href="hasil.html">
-                        <span>Kelola Hasil</span>
-                    </a>
-                </li>
-                <hr class="sidebar-bagi" />
-                <li class="nav-item">
-                    <a class="nav-link sidebar-text" href="kategori.html">
-                        <span>Kelola Kategori</span>
-                    </a>
-                </li>
-                <hr class="sidebar-bagi" />
-                <li class="nav-item">
-                    <a class="nav-link sidebar-text" href="peran.html">
-                        <span>Kelola Peran</span>
-                    </a>
-                </li>
-                <hr class="sidebar-bagi" />
-                <li class="nav-item">
-                    <a class="nav-link sidebar-text" href="sekolah.html">
-                        <span>Kelola Sekolah</span>
-                    </a>
-                </li>
-                <hr class="sidebar-bagi" />
-            </ul>
+            <?php require './sidebar.php'; ?>
+
         </div>
         <div class="main" id="kelola_pertanyaan">
             <!-- As a heading -->
@@ -430,28 +492,6 @@ mysqli_query($conn, $sqlPenentuanKuadran);
                         </tr>
                     </tbody>
                 </table>
-                <p style="font-size: 14px; opacity: 0.6; margin-bottom: -2px;">
-                    NILAI KATEGORI
-                </p>
-                <span style="display: inline-block; font-size: 12px; opacity: 0.6;">
-                    20 - 36 SANGAT TIDAK BAIK
-                </span>
-                <br />
-                <span style="display: inline-block; font-size: 12px; opacity: 0.6;">
-                    37 - 52 TIDAK BAIK
-                </span>
-                <br />
-                <span style="display: inline-block; font-size: 12px; opacity: 0.6;">
-                    53 - 68 CUKUP BAIK
-                </span>
-                <br />
-                <span style="display: inline-block; font-size: 12px; opacity: 0.6;">
-                    69 - 84 BAIK
-                </span>
-                <br />
-                <span style="display: inline-block; font-size: 12px; opacity: 0.6;">
-                    85 - 100 SANGAT BAIK
-                </span>
             </div>
             <div class="footer fixed-bottom">
                 <p class="text-center">
