@@ -1,12 +1,20 @@
 <?php
+session_start();
 require './functions.php';
+if ($_SESSION['id'] != '1') {
+    header('location: login.php');
+    exit();
+} else {
+    $datas = query('SELECT * FROM indikator');
+    $dataperan = query('SELECT * FROM peran');
 
-$datas = query('SELECT * FROM indikator');
-$dataperan = query('SELECT * FROM peran');
-
-$peran = query(
-    'SELECT ID_INDIKATOR,NAMA_INDIKATOR, GROUP_CONCAT(NAMA_PERAN) as NAMA_PERAN FROM ( SELECT indikator.ID_INDIKATOR, indikator.NAMA_INDIKATOR,peran.NAMA_PERAN FROM (indikator LEFT JOIN kriteria_peran ON indikator.ID_INDIKATOR = kriteria_peran.ID_INDIKATOR) LEFT JOIN peran ON kriteria_peran.ID_PERAN = peran.ID_PERAN ) AS A GROUP BY ID_INDIKATOR'
-);
+    $peran = query(
+        'SELECT ID_INDIKATOR,NAMA_INDIKATOR, GROUP_CONCAT(NAMA_PERAN) as NAMA_PERAN FROM ( SELECT indikator.ID_INDIKATOR, indikator.NAMA_INDIKATOR,peran.NAMA_PERAN FROM (indikator LEFT JOIN kriteria_peran ON indikator.ID_INDIKATOR = kriteria_peran.ID_INDIKATOR) LEFT JOIN peran ON kriteria_peran.ID_PERAN = peran.ID_PERAN ) AS A GROUP BY ID_INDIKATOR'
+    );
+}
+if (isset($_POST['logout'])) {
+    logout();
+}
 ?>
 
 <!DOCTYPE html>
@@ -41,25 +49,8 @@ $peran = query(
         </div>
         <div class="main" id="kelola_pertanyaan">
             <!-- As a heading -->
-            <div class="navigation">
-                <div class="container">
-                    <div class="row">
-                        <div class="col col-10">
-                            <nav class="navbar navbar-light bg-light">
-                                <h1 class="navbar-brand mb-0">
-                                    KELOLA INDIKATOR
-                                </h1>
-                            </nav>
-                            <span>SISTEM PENGUKURAN KUALITAS BLENDED LEARNING</span>
-                        </div>
-                        <div class="col col-2">
-                            <button class="btn btn-danger float-right">
-                                Logout
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <?php require './nav.php'; ?>
+
             <div class="container">
                 <div style="
               display: flex;
@@ -102,9 +93,9 @@ $peran = query(
                                 ] ?> data-toggle="modal" data-target="#editindikator" type="button">
                                     <i class="fa-solid fa-pencil"></i>
                                 </button>
-                                <button class="btn btn-danger btn-delete" data-value=<?= $peran[
+                                <button class="btn btn-danger btn-delete" data-value="<?= $peran[
                                     'ID_INDIKATOR'
-                                ] ?>>
+                                ] ?>">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </td>
@@ -146,6 +137,25 @@ $peran = query(
                             <label for="inputindikator">Masukkan Nama Indikator</label>
                             <input type="text" class="form-control" name="nama" id="inputindikator"
                                 aria-describedby="texthelp" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <select class="custom-select" id="selectAtribut">
+                            <option selected value="0">Pilih Atribut Indikator</option>
+                            <option value="BENEFIT">BENEFIT</option>
+                            <option value="COST">COST</option>
+                        </select>
+                        <span style="font-size: 12px;">BENEFIT jika pengukuran indikator lebih banyak lebih
+                            baik</span>
+                        <span style="font-size: 12px;" class="d-inline-block mt-0">COST jika pengukuran
+                            indikator lebih sedikit lebih baik</span>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group">
+                            <label for="inputindikator">Masukkan Bobot Indikator</label>
+                            <input type="text" class="form-control" name="bobot" id="inputbobot"
+                                aria-describedby="texthelp" />
+                            <span style="font-size: 12px;" class="d-inline-block mt-0">Nilai Bobot Antara 0 - 1</span>
                         </div>
                     </div>
                     <span>Pilih Peran Untuk Indikator</span>
@@ -198,6 +208,8 @@ $peran = query(
         }).then(responseJson => {
             let data = responseJson;
             $("input:checkbox").prop('checked', false);
+            let atribut = data[0].ATRIBUT
+            let bobot = data[0].BOBOT
 
             function mapData() {
                 let items = `
@@ -220,6 +232,26 @@ $peran = query(
                                                 aria-describedby="texthelp" />
                                             <input type="hidden" name="id" value="${data[0].ID_INDIKATOR}" class="form-control" id="id_indikator"
                                                 aria-describedby="texthelp" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <select class="custom-select" id="selectAtributedit">
+                                            <option selected value="0">Pilih Atribut Indikator</option>
+                                            <option value="BENEFIT">BENEFIT</option>
+                                            <option value="COST">COST</option>
+                                        </select>
+                                        <span style="font-size: 12px;">BENEFIT jika pengukuran indikator lebih banyak lebih
+                                            baik</span>
+                                        <span style="font-size: 12px;" class="d-inline-block mt-0">COST jika pengukuran
+                                            indikator lebih sedikit lebih baik</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="form-group">
+                                            <label for="inputindikator">Masukkan Bobot Indikator</label>
+                                            <input type="text" class="form-control" name="bobot" id="inputbobotedit"
+                                                aria-describedby="texthelp" />
+                                            <span style="font-size: 12px;" class="d-inline-block mt-0">Nilai Bobot Antara 0 - 1</span>
+
                                         </div>
                                     </div>
                                     <span>Pilih Peran Untuk Indikator</span>
@@ -258,6 +290,8 @@ $peran = query(
                 })
             }
             setSelect();
+            $("#inputbobotedit").val(bobot)
+            $("#selectAtributedit").val(atribut)
             let namaold = $("#nama_indikator").val();
             $("#editindikator").modal("show");
             $(".closeModal").on("click", function() {
@@ -266,61 +300,78 @@ $peran = query(
             })
             $("#btn1").on("click", function() {
                 let nama = $("#nama_indikator").val();
+                let atribut = $("#selectAtributedit").val();
+                let bobot = $("#inputbobotedit").val();
                 let id = $("#id_indikator").val();
                 let dataSelectBox = []
                 $('.selectbox:checked').each(function(i) {
                     dataSelectBox[i] = $(this).val()
                 })
-                if (dataSelectBox < arrayCheck) {
-                    console.log("kurang")
+                if (data.length == 0) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Peran Indikator Harus Dipilih!',
+                        icon: 'error',
+                        position: "top",
+                        showConfirmButton: true
+                    })
+                } else if (nama.length == 0 || nama === " " || atribut == "0" || bobot ===
+                    " " || bobot.length == 0) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Form Tidak Boleh Kosong!',
+                        icon: 'error',
+                        position: "top",
+                        showConfirmButton: true
+                    })
                 } else {
-                    console.log("tambah")
-                }
-
-                Swal.fire({
-                    title: 'Update Indikator',
-                    text: 'Apakah Yakin Mengganti ' + namaold + "\n Menjadi " +
-                        nama,
-                    showCancelButton: true,
-                    confirmButtonText: 'Simpan',
-                    icon: "info",
-                    reverseButtons: true,
-                    position: "top"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        let formData1 = new FormData();
-                        formData1.append("id", dataid);
-                        formData1.append("nama", nama);
-                        formData1.append("idPeran", dataSelectBox);
-                        fetch('editindikator.php', {
-                            method: "POST",
-                            body: formData1
-                        }).then(response => {
-                            response.json();
-                        }).then(responseJson => {
+                    Swal.fire({
+                        title: 'Update Indikator',
+                        text: 'Apakah Yakin Mengganti ' + namaold + "\n Menjadi " +
+                            nama,
+                        showCancelButton: true,
+                        confirmButtonText: 'Simpan',
+                        icon: "info",
+                        reverseButtons: true,
+                        position: "top"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            let formData1 = new FormData();
+                            formData1.append("id", dataid);
+                            formData1.append("nama", nama);
+                            formData1.append("atribut", atribut);
+                            formData1.append("bobot", bobot);
+                            formData1.append("idPeran", dataSelectBox);
+                            fetch('editindikator.php', {
+                                method: "POST",
+                                body: formData1
+                            }).then(response => {
+                                response.json();
+                            }).then(responseJson => {
+                                Swal.fire({
+                                    title: 'Tersimpan!',
+                                    text: 'Perubahan Nama Indikator Berhasil',
+                                    icon: 'success',
+                                    position: "top",
+                                    showConfirmButton: false
+                                })
+                                $("#editindikator").modal('dispose');
+                                setTimeout(() => {
+                                    window.location.reload(true);
+                                }, 1000);
+                            })
+                        } else {
                             Swal.fire({
-                                title: 'Tersimpan!',
-                                text: 'Perubahan Nama Indikator Berhasil',
-                                icon: 'success',
-                                position: "top",
-                                showConfirmButton: false
+                                title: 'Gagal!',
+                                text: 'Tidak Berhasil Merubah Nama Indikator',
+                                icon: 'error',
+                                position: "top"
                             })
                             $("#editindikator").modal('dispose');
-                            setTimeout(() => {
-                                window.location.reload(true);
-                            }, 1000);
-                        })
-                    } else {
-                        Swal.fire({
-                            title: 'Gagal!',
-                            text: 'Tidak Berhasil Merubah Nama Indikator',
-                            icon: 'error',
-                            position: "top"
-                        })
-                        $("#editindikator").modal('dispose');
 
-                    }
-                })
+                        }
+                    })
+                }
             })
         })
         e.preventDefault();
@@ -374,6 +425,8 @@ $peran = query(
     })
     $(".btn-add").on("click", function() {
         let nama = $("#inputindikator").val();
+        let atribut = $("#selectAtribut").val();
+        let bobot = $("#inputbobot").val();
         let data = []
         $(':checkbox:checked').each(function(i) {
             data[i] = $(this).val();
@@ -386,10 +439,10 @@ $peran = query(
                 position: "top",
                 showConfirmButton: true
             })
-        } else if (nama.length == 0) {
+        } else if (nama.length == 0 || nama === " " || atribut == "0" || bobot === " " || bobot.length == 0) {
             Swal.fire({
                 title: 'Error!',
-                text: 'Nama Indikator Tidak Boleh Kosong!',
+                text: 'Form Tidak Boleh Kosong!',
                 icon: 'error',
                 position: "top",
                 showConfirmButton: true
@@ -398,6 +451,8 @@ $peran = query(
             let formData = new FormData;
             formData.append("idperan", data);
             formData.append("nama", nama);
+            formData.append("atribut", atribut);
+            formData.append("bobot", bobot);
             fetch("buatIndikator.php", {
                 method: "POST",
                 body: formData
@@ -405,8 +460,8 @@ $peran = query(
                 return response.json()
             }).then(responseJson => {
                 Swal.fire({
-                    title: 'Terhapus!',
-                    text: 'Indikator Berhasil Dihapus',
+                    title: 'Tersimpan!',
+                    text: 'Indikator Berhasil Dibuat',
                     icon: 'success',
                     position: "top",
                     showConfirmButton: false

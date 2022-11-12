@@ -1,5 +1,31 @@
 <?php
-require './functions.php'; ?>
+session_start();
+require './functions.php';
+if ($_SESSION['id'] != '1') {
+    header('location: login.php');
+    exit();
+} else {
+    $banyakSekolah = mysqli_fetch_assoc(
+        mysqli_query($conn, 'SELECT COUNT(ID_SEKOLAH) AS TOTAL FROM sekolah')
+    );
+    $banyakIndikator = mysqli_fetch_assoc(
+        mysqli_query(
+            $conn,
+            'SELECT COUNT(ID_INDIKATOR) AS TOTAL FROM indikator'
+        )
+    );
+    $banyakPertanyaan = mysqli_fetch_assoc(
+        mysqli_query(
+            $conn,
+            'SELECT COUNT(DISTINCT ID_INDIKATOR) AS TOTAL FROM pertanyaan'
+        )
+    );
+}
+
+if (isset($_POST['logout'])) {
+    logout();
+}
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,7 +38,12 @@ require './functions.php'; ?>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
         integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js"
+        integrity="sha512-6PM0qYu5KExuNcKt5bURAoT6KCThUmHRewN3zUFNaoI6Di7XJPTMoT6K0nsagZKk2OB4L7E3q1uQKHNHd4stIQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="assets/style/main.css" />
+    <link rel="stylesheet" href="assets/owlcarousel/dist/assets/owl.carousel.min.css" />
+    <link rel="stylesheet" href="assets/owlcarousel/dist/assets/owl.theme.default.min.css" />
     <title>Admin</title>
 </head>
 
@@ -23,112 +54,101 @@ require './functions.php'; ?>
         </div>
         <div class="main">
             <!-- As a heading -->
-            <div class="navigation">
-                <div class="container">
-                    <div class="row">
-                        <div class="col col-10">
-                            <nav class="navbar navbar-light bg-light">
-                                <h1 class="navbar-brand mb-0">
-                                    SELAMAT DATANG, ADMIN !
-                                </h1>
-                            </nav>
-                            <span>SISTEM PENGUKURAN KUALITAS BLENDED LEARNING</span>
-                        </div>
-                        <div class="col col-2">
-                            <button class="btn btn-danger float-right">Logout</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <?php require './nav.php'; ?>
             <div class="container">
-                <div class="laporan">
+                <div class="laporan ">
                     <h2>LAPORAN AKTIVITAS</h2>
-                    <div class="card" style="width: 22rem;">
+                    <div class="card mr-4" style="width: 22rem;">
                         <div class="card-body">
-                            <h3 class="card-title">KUESIONER</h3>
-                            <h4 class="card-subtitle mb-2 text-muted">3 KUESIONER</h4>
+                            <h3 class="card-title">SEKOLAH</h3>
+                            <h4 class="card-subtitle mb-2 text-muted"><?= $banyakSekolah[
+                                'TOTAL'
+                            ] ?> SEKOLAH</h4>
                         </div>
                     </div>
-                    <div class="card" style="width: 18rem;">
+                    <div class="card mr-4" style="width: 18rem;">
                         <div class="card-body">
                             <h3 class="card-title">INDIKATOR</h3>
-                            <h4 class="card-subtitle mb-2 text-muted">8 INDIKATOR</h4>
+                            <h4 class="card-subtitle mb-2 text-muted"><?= $banyakIndikator[
+                                'TOTAL'
+                            ] ?> INDIKATOR</h4>
                         </div>
                     </div>
                     <div class="card" style="width: 18rem;">
                         <div class="card-body">
                             <h3 class="card-title">PERTANYAAN</h3>
-                            <h4 class="card-subtitle mb-2 text-muted">10 PERTANYAAN</h4>
+                            <h4 class="card-subtitle mb-2 text-muted"><?= $banyakPertanyaan[
+                                'TOTAL'
+                            ] ?> PERTANYAAN</h4>
                         </div>
                     </div>
                 </div>
-                <div class="hasil">
+                <div class="hasil d-flex justify-content-center">
                     <h2>HASIL PENGUKURAN KUALITAS</h2>
-                    <div class="card" style="width: 19rem;">
-                        <div class="card-body">
-                            <span>PERINGKAT 1</span>
-                            <h3 class="card-title">SMA NEGERI 1 LAMONGAN</h3>
-                            <h4 class="pertahankan">
-                                10 INDIKATOR PERLU DI
-                                <span>PERTAHANKAN</span>
-                            </h4>
-                            <h4 class="pertimbangkan">
-                                1 INDIKATOR PERLU DI
-                                <span>PERTIMBANGKAN</span>
-                            </h4>
-                            <h4 class="perbaiki">
-                                2 INDIKATOR PERLU DI
-                                <span>PERBAIKI</span>
-                            </h4>
-                            <h4 class="berlebihan">
-                                2 INDIKATOR
-                                <span>BERLEBIHAN</span>
-                            </h4>
+                    <div class="owl-carousel">
+                        <?php
+                        $dataSekolahRangking = query(
+                            'SELECT sekolah.ID_SEKOLAH,sekolah.NAMA_SEKOLAH,tingkat_kesesuaian_total.NILAI,perangkingan_sekolah.NILAI as NILAI_RANGKING FROM perangkingan_sekolah LEFT JOIN tingkat_kesesuaian_total ON perangkingan_sekolah.ID_SEKOLAH = tingkat_kesesuaian_total.ID_SEKOLAH LEFT JOIN sekolah ON perangkingan_sekolah.ID_SEKOLAH = sekolah.ID_SEKOLAH ORDER BY NILAI_RANGKING DESC'
+                        );
+                        $index = 1;
+                        if (count($dataSekolahRangking) == 0) {
+                            echo '<div class="row justify-content-center">
+                            <div class="card mb-2" style="width: 19rem;">
+                            <div class="card-body text-center">
+                                Data Belum Tersedia
+                            </div>
+                            </div>
+                        </div>';
+                        }
+                        foreach ($dataSekolahRangking as $data):
+
+                            $idSekolah = $data['ID_SEKOLAH'];
+                            $pertahankan = query(
+                                "SELECT COUNT(ID_INDIKATOR) AS TOTAL from kuadran_indikator WHERE ID_SEKOLAH = $idSekolah AND KUADRAN = 'PERTAHANKAN PRESTASI'"
+                            );
+                            $pertimbangan = query(
+                                "SELECT COUNT(ID_INDIKATOR) AS TOTAL from kuadran_indikator WHERE ID_SEKOLAH = $idSekolah AND KUADRAN = 'PRIORITAS RENDAH'"
+                            );
+                            $perbaiki = query(
+                                "SELECT COUNT(ID_INDIKATOR) AS TOTAL from kuadran_indikator WHERE ID_SEKOLAH = $idSekolah AND KUADRAN = 'PRIORITAS TINGGI'"
+                            );
+                            $berlebihan = query(
+                                "SELECT COUNT(ID_INDIKATOR) AS TOTAL from kuadran_indikator WHERE ID_SEKOLAH = $idSekolah AND KUADRAN = 'BERLEBIHAN'"
+                            );
+                            ?>
+                        <div class="card mr-4" style="width: 19rem;">
+                            <div class="card-body">
+                                <span>PERINGKAT <?= $index++ ?></span>
+                                <h3 class="card-title"><?= $data[
+                                    'NAMA_SEKOLAH'
+                                ] ?></h3>
+                                <h4 class="pertahankan">
+                                    <?= $pertahankan[0][
+                                        'TOTAL'
+                                    ] ?> INDIKATOR PERLU DI
+                                    <span>PERTAHANKAN</span>
+                                </h4>
+                                <h4 class="pertimbangkan">
+                                    <?= $pertimbangan[0][
+                                        'TOTAL'
+                                    ] ?> INDIKATOR PERLU DI
+                                    <span style="color: orange;">PERTIMBANGKAN</span>
+                                </h4>
+                                <h4 class="perbaiki">
+                                    <?= $perbaiki[0][
+                                        'TOTAL'
+                                    ] ?> INDIKATOR PERLU DI
+                                    <span>PERBAIKI</span>
+                                </h4>
+                                <h4 class="berlebihan">
+                                    <?= $berlebihan[0]['TOTAL'] ?> INDIKATOR
+                                    <span>BERLEBIHAN</span>
+                                </h4>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card" style="width: 19rem;">
-                        <div class="card-body">
-                            <span>PERINGKAT 2</span>
-                            <h3 class="card-title">SMA NEGERI 2 LAMONGAN</h3>
-                            <h4 class="pertahankan">
-                                10 INDIKATOR PERLU DI
-                                <span>PERTAHANKAN</span>
-                            </h4>
-                            <h4 class="pertimbangkan">
-                                1 INDIKATOR PERLU DI
-                                <span>PERTIMBANGKAN</span>
-                            </h4>
-                            <h4 class="perbaiki">
-                                2 INDIKATOR PERLU DI
-                                <span>PERBAIKI</span>
-                            </h4>
-                            <h4 class="berlebihan">
-                                2 INDIKATOR
-                                <span>BERLEBIHAN</span>
-                            </h4>
-                        </div>
-                    </div>
-                    <div class="card" style="width: 19rem;">
-                        <div class="card-body">
-                            <span>PERINGKAT 3</span>
-                            <h3 class="card-title">SMA NEGERI 3 LAMONGAN</h3>
-                            <h4 class="pertahankan">
-                                10 INDIKATOR PERLU DI
-                                <span>PERTAHANKAN</span>
-                            </h4>
-                            <h4 class="pertimbangkan">
-                                1 INDIKATOR PERLU DI
-                                <span>PERTIMBANGKAN</span>
-                            </h4>
-                            <h4 class="perbaiki">
-                                2 INDIKATOR PERLU DI
-                                <span>PERBAIKI</span>
-                            </h4>
-                            <h4 class="berlebihan">
-                                2 INDIKATOR
-                                <span>BERLEBIHAN</span>
-                            </h4>
-                        </div>
+                        <?php
+                        endforeach;
+                        ?>
                     </div>
                 </div>
                 <div class="indikator-sekolah">
@@ -136,21 +156,18 @@ require './functions.php'; ?>
                         <h2 class="text-center">5 INDIKATOR TERAKHIR</h2>
                         <table class="table table-bordered">
                             <tbody>
+                                <?php
+                                $dataIndikator = query(
+                                    'SELECT * FROM indikator ORDER BY ID_INDIKATOR DESC LIMIT 5'
+                                );
+                                foreach ($dataIndikator as $data): ?>
                                 <tr>
-                                    <td class="text-center">FASILITAS INTERNET</td>
+                                    <td class="text-center"><?= $data[
+                                        'NAMA_INDIKATOR'
+                                    ] ?></td>
                                 </tr>
-                                <tr>
-                                    <td class="text-center">AKSES INTERNET</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">LAB KOMPUTER</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">MOTIVASI SISWA</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">TANGGUNG JAWAB SISWA</td>
-                                </tr>
+                                <?php endforeach;
+                                ?>
                             </tbody>
                         </table>
                     </div>
@@ -158,50 +175,20 @@ require './functions.php'; ?>
                         <h2 class="text-center">SEKOLAH TERAKHIR DIBUAT</h2>
                         <table class="table table-bordered">
                             <tbody>
+                                <?php
+                                $dataIndikator = query(
+                                    'SELECT * FROM sekolah ORDER BY ID_SEKOLAH DESC LIMIT 5'
+                                );
+                                foreach ($dataIndikator as $data): ?>
                                 <tr>
-                                    <td class="text-center">SMA NEGERI 1 LAMONGAN</td>
+                                    <td class="text-center"><?= $data[
+                                        'NAMA_SEKOLAH'
+                                    ] ?></td>
                                 </tr>
-                                <tr>
-                                    <td class="text-center">SMAN NEGERI 2 LAMONGAN</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">SMA NEGERI 3 LAMONGAN</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">SMA NEGERI 1 SUKODADI</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">SMA NEGERI 1 KARANGBINANGUN</td>
-                                </tr>
+                                <?php endforeach;
+                                ?>
                             </tbody>
                         </table>
-                    </div>
-                </div>
-                <div class="kuesioner">
-                    <h2>KUESIONER TERAKHIR</h2>
-                    <div class="card" style="width: 22rem;">
-                        <div class="card-body">
-                            <h3 class="card-title">PENGUKURAN KUALITAS BLENDED LEARNING</h3>
-                            <h4 class="card-subtitle mb-2 text-muted">
-                                SMA NEGERI 1 LAMONGAN
-                            </h4>
-                        </div>
-                    </div>
-                    <div class="card" style="width: 22rem;">
-                        <div class="card-body">
-                            <h3 class="card-title">PENGUKURAN KUALITAS BLENDED LEARNING</h3>
-                            <h4 class="card-subtitle mb-2 text-muted">
-                                SMA NEGERI 2 LAMONGAN
-                            </h4>
-                        </div>
-                    </div>
-                    <div class="card" style="width: 22rem;">
-                        <div class="card-body">
-                            <h3 class="card-title">PENGUKURAN KUALITAS BLENDED LEARNING</h3>
-                            <h4 class="card-subtitle mb-2 text-muted">
-                                SMA NEGERI 3 LAMONGAN
-                            </h4>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -218,9 +205,20 @@ require './functions.php'; ?>
     <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
     <script src="https://code.jquery.com/jquery-3.6.0.slim.js"
         integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" crossorigin="anonymous"></script>
-    <script src="https://your-site-or-cdn.com/fontawesome/v6.1.1/js/all.js" data-auto-replace-svg="nest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js"
+        integrity="sha512-6PM0qYu5KExuNcKt5bURAoT6KCThUmHRewN3zUFNaoI6Di7XJPTMoT6K0nsagZKk2OB4L7E3q1uQKHNHd4stIQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js"
+        integrity="sha512-6PM0qYu5KExuNcKt5bURAoT6KCThUmHRewN3zUFNaoI6Di7XJPTMoT6K0nsagZKk2OB4L7E3q1uQKHNHd4stIQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="assets/owlcarousel/dist/owl.carousel.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $(".owl-carousel").owlCarousel();
+    });
     </script>
 </body>
 

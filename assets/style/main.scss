@@ -32,7 +32,7 @@ html {
       }
       min-width: 100%;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       flex-wrap: wrap;
     }
     .laporan {
@@ -80,7 +80,7 @@ html {
         }
         h4.pertimbangkan {
           span {
-            color: yellow;
+            color: orange;
           }
         }
         h4.perbaiki {
@@ -106,6 +106,12 @@ html {
           font-size: 18px;
           margin-bottom: 10px;
         }
+      }
+    }
+    .indikator-detail-sekolah {
+      h2 {
+        font-size: 18px;
+        margin-bottom: 10px;
       }
     }
     .kuesioner {

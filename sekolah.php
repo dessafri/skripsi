@@ -1,6 +1,14 @@
 <?php
+session_start();
 require './functions.php';
-
+if ($_SESSION['id'] != '1') {
+    header('location: login.php');
+    exit();
+} else {
+}
+if (isset($_POST['logout'])) {
+    logout();
+}
 $datas = query('SELECT * FROM sekolah');
 ?>
 <!DOCTYPE html>
@@ -34,25 +42,8 @@ $datas = query('SELECT * FROM sekolah');
         </div>
         <div class="main" id="kelola_pertanyaan">
             <!-- As a heading -->
-            <div class="navigation">
-                <div class="container">
-                    <div class="row">
-                        <div class="col col-10">
-                            <nav class="navbar navbar-light bg-light">
-                                <h1 class="navbar-brand mb-0">
-                                    KELOLA SEKOLAH
-                                </h1>
-                            </nav>
-                            <span>SISTEM PENGUKURAN KUALITAS BLENDED LEARNING</span>
-                        </div>
-                        <div class="col col-2">
-                            <button class="btn btn-danger float-right">
-                                Logout
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <?php require './nav.php'; ?>
+
             <div class="container">
                 <div style="
               display: flex;

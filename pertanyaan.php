@@ -1,10 +1,17 @@
 <?php
+session_start();
 require './functions.php';
-
-$pertanyaan = query(
-    'SELECT pertanyaan.ID_PERTANYAAN,pertanyaan.NAMA_PERTANYAAN,indikator.NAMA_INDIKATOR,pertanyaan.KATEGORI FROM pertanyaan LEFT JOIN indikator ON pertanyaan.ID_INDIKATOR = indikator.ID_INDIKATOR'
-);
-$kategori = query('SELECT * FROM kategori');
+if ($_SESSION['id'] != '1') {
+    header('location: login.php');
+    exit();
+} else {
+    $pertanyaan = query(
+        'SELECT pertanyaan.ID_PERTANYAAN,pertanyaan.NAMA_PERTANYAAN,indikator.NAMA_INDIKATOR,pertanyaan.KATEGORI FROM pertanyaan LEFT JOIN indikator ON pertanyaan.ID_INDIKATOR = indikator.ID_INDIKATOR'
+    );
+}
+if (isset($_POST['logout'])) {
+    logout();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,25 +45,8 @@ $kategori = query('SELECT * FROM kategori');
         </div>
         <div class="main" id="kelola_pertanyaan">
             <!-- As a heading -->
-            <div class="navigation">
-                <div class="container">
-                    <div class="row">
-                        <div class="col col-10">
-                            <nav class="navbar navbar-light bg-light">
-                                <h1 class="navbar-brand mb-0">
-                                    KELOLA PERTANYAAN
-                                </h1>
-                            </nav>
-                            <span>SISTEM PENGUKURAN KUALITAS BLENDED LEARNING</span>
-                        </div>
-                        <div class="col col-2">
-                            <button class="btn btn-danger float-right">
-                                Logout
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <?php require './nav.php'; ?>
+
             <div class="container">
                 <div style="
               display: flex;
@@ -123,7 +113,7 @@ $kategori = query('SELECT * FROM kategori');
                     </tbody>
                 </table>
             </div>
-            <div class="footer fixed-bottom">
+            <div class="footer">
                 <p class="text-center">
                     SIPEKU Sistem Pengukuran Kualitas &copy; 2022
                 </p>
@@ -151,7 +141,9 @@ $kategori = query('SELECT * FROM kategori');
                         <select class="form-control" id="indikatorselect">
                             <option value="0">-- Silahkan Pilih Indikator Pertanyaan --</option>
                             <?php
-                            $indikator = query('SELECT * FROM indikator');
+                            $indikator = query(
+                                'SELECT * FROM indikator WHERE NOT EXISTS (SELECT * FROM pertanyaan WHERE indikator.ID_INDIKATOR = pertanyaan.ID_INDIKATOR)'
+                            );
                             foreach ($indikator as $data): ?>
                             <option value=<?= $data[
                                 'ID_INDIKATOR'
@@ -608,7 +600,6 @@ $kategori = query('SELECT * FROM kategori');
             return response.json();
         }).then(responseJson => {
             let data = responseJson;
-            console.log(data);
             let dataKualitas = data[0];
             let pertanyaan = dataKualitas.NAMA_PERTANYAAN;
             if (data[0].KATEGORI == "KUALITAS") {

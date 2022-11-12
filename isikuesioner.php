@@ -1,5 +1,18 @@
 <?php
-require './functions.php'; ?>
+require './functions.php';
+$key = $_GET['key'];
+$data = query('SELECT VALUE FROM kunci');
+
+if (!isset($key)) {
+    header('location: error.html');
+} else {
+    $kuncidb = $data[0]['VALUE'];
+    if ($key == $kuncidb) {
+    } else {
+        header('location: error.html');
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -36,6 +49,13 @@ require './functions.php'; ?>
         border-radius: 20px;
         margin-bottom: 75px;
         padding-bottom: 30px;
+    }
+
+    @media (max-width: 750px) {
+
+        .isiKuesioner {
+            width: 100%;
+        }
     }
 
     .clickStyle {
